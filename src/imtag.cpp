@@ -12,7 +12,7 @@ class SegmentImage<label_t>::Impl: public SegmentImageImpl<label_t>{
 template<class label_t>
 SegmentImage<label_t>::SegmentImage(
     size_t rows,size_t columns):m_rows(rows),m_columns(columns),
-	impl(std::make_unique<Impl>(m_rows,m_columns))
+	impl(std::make_unique<Impl>(rows,columns))
 {}
 template<class label_t>
 void SegmentImage<label_t>::update(

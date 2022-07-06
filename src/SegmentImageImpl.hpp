@@ -23,7 +23,8 @@ public:
     > segments_by_row;
 
     SegmentImageImpl()=default;
-    SegmentImageImpl(size_t rows_,size_t cols_){}
+	SegmentImageImpl(size_t rows_,size_t cols_) :
+		rows(rows_),columns(cols_){}
 
     void update(const uint8_t* binary_image,ConnectivitySelection cs);
     void rows_to_components();

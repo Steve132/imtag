@@ -23,18 +23,11 @@ void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivityS
     if(cs == ConnectivitySelection::VERTICAL) throw std::runtime_error("VERTICAL IS NOT IMPLEMENTED");
 
     compress_scanlines(binary_image,rows,columns,segments_by_row);
-
-	std::cout << "segments_by_row.size: " << segments_by_row.size() << std::endl;
-
-	// 1. Verify compress scanlines gets segments per scanline:
+	size_t nsegments = 0;
 	for(const auto& seg_row : segments_by_row)
-	{
-		for(const auto& seg : seg_row)
-		{
-			std::cout << "seg: " << seg << std::endl;
-		}
-	}
-
+		nsegments += seg_row.size();
+	ds.reset(nsegments);
+	std::cout << "segments_by_row.size: " << segments_by_row.size() << std::endl;
 
     switch(cs){
         case ConnectivitySelection::HORIZONTAL:
@@ -57,13 +50,26 @@ template<class label_t>
 void SegmentImageImpl<label_t>::update_compiletime_dispatch
 (const uint8_t* binary_image,cs_tag<ConnectivitySelection::HORIZONTAL>)
 {
-    
+	// Default.  Do not union at all.
 }
 template<class label_t>
 void SegmentImageImpl<label_t>::update_compiletime_dispatch
 (const uint8_t* binary_image,cs_tag<ConnectivitySelection::CROSS>)
 {
-    
+	for(size_t y = 1; y < segments_by_row.size(); y++)
+	{
+		// look above
+		auto& prev_segments = segments_by_row[y-1];
+		auto& segments = segments_by_row[y];
+		for(auto& segment : segments)
+		{
+			for(auto& prev_segment : prev_segments)
+			{
+				if(segment.overlap(prev_segment))
+					ds.unite(segment.label, prev_segment.label);
+			}
+		}
+	}
 }
 template<class label_t>
 void SegmentImageImpl<label_t>::update_compiletime_dispatch
