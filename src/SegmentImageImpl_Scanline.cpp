@@ -126,20 +126,27 @@ void SegmentImageImpl<label_t>::compress_scanlines(
     std::vector<std::vector<seg_t>>& output_rows){
     output_rows.resize(R);
 
-	label_t label = 0;
-	static constexpr label_t label_max = std::numeric_limits<label_t>::max();
-	// Note: enable openMP for 3x speedup, but not yet correct (need label separate per scanline).
-	//#pragma omp parallel for
+	#pragma omp parallel for
 	for(size_t r=0;r<R;r++){
 		// Append segments to this scanline
-		//label_t label = r+R;
+		label_t rlabel = 0;
 		auto& rows=output_rows[r];
 		compress_scanline<default_tag>::impl(binary_image+C*r,r,C,
 			// Make segment (seg_t) function:
-			[&rows,&label](size_t rind,size_t cbegin,size_t cend){
-				rows.emplace_back(rind,cbegin,cend,label++);
+			[&rows,&rlabel](size_t rind,size_t cbegin,size_t cend){
+				rows.emplace_back(rind,cbegin,cend,rlabel++);
 			}
 		);
+	}
+
+	// Assign unique labels across scanlines: linearize labels now that labels assigned per row
+	label_t label = 0;
+	for(size_t r=0;r<R;r++){
+		auto& rows=output_rows[r];
+		for(auto& row : rows)
+		{
+			row.label = label++;
+		}
 	}
 }
 
