@@ -9,15 +9,6 @@ void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivityS
 
 }
 
-template<class label_t>
-SegmentImageImpl<label_t>::SegmentImageImpl(const SegmentImageImpl& o){
-    operator=(o);
-}
-
-template<class label_t>
-SegmentImageImpl<label_t>& SegmentImageImpl<label_t>::operator=(const SegmentImageImpl& o){
-    return *this;
-}
 
 
 template class SegmentImageImpl<uint8_t>;

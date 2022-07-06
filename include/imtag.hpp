@@ -4,16 +4,10 @@
 #include<cstdint>
 #include<cstdlib>
 #include<memory>
-#include<span>
+#include<vector>
+#include<functional>
 
 namespace imtag{
-
-#ifdef __cpp_lib_span
-template<class T>
-using span=std::span<T>;
-#else
-#include "span_shim.hpp"
-#endif
 
 template<class label_t>
 class Segment
@@ -56,13 +50,11 @@ protected:
 public:
     using label_t=LabelType;
     using segment_t=Segment<label_t>;
+    using component_t=std::vector<segment_t>;
+    using components_t=std::vector<component_t>;
+
+    std::reference_wrapper<components_t> components;
     
-    using scanline_t=span<segment_t>;
-    using component_t=span<segment_t>;
-
-    using components_t=span<component_t>;
-    using scanlines_t=span<scanline_t>;
-
     // Dimensions of source image
     size_t width() const { return m_columns; }
     size_t height() const { return m_rows; }
@@ -73,14 +65,8 @@ public:
     SegmentImage(size_t rows,size_t columns);
 
     // Perform connected components on boolean image
-    void update(const uint8_t* boolean_image, const ConnectivitySelection cs = CROSS);
+    void update(const uint8_t* boolean_image, const ConnectivitySelection cs = ConnectivitySelection::CROSS);
 
-    scanlines_t scanlines() const;
-    components_t components() const;
-    component_t component(const label_t lb) const {
-        return components()[lb];
-    }
-    
     SegmentImage(const SegmentImage&);
     SegmentImage& operator=(const SegmentImage&);
     SegmentImage(SegmentImage&&);
@@ -89,7 +75,11 @@ public:
 };
 
 template<class label_t>
-inline SegmentImage<label_t> bwlabel(const size_t rows,const size_t columns,const uint8_t* boolean_image, const ConnectivitySelection cs = CROSS){
+inline SegmentImage<label_t> bwlabel(
+        const size_t rows,const size_t columns,
+        const uint8_t* boolean_image, 
+        const ConnectivitySelection cs = ConnectivitySelection::CROSS)
+{
     SegmentImage<label_t> segs(rows,columns);
     segs.update(boolean_image,cs);
     return segs;
