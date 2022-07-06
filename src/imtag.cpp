@@ -16,7 +16,7 @@ SegmentImage<label_t>::SegmentImage(
 {}
 template<class label_t>
 void SegmentImage<label_t>::update(
-    const uint8_t* binary_image,ConnectivitySelection cs)
+    const uint8_t* binary_image, const ConnectivitySelection cs)
 {
     impl->update(binary_image,cs);
 }

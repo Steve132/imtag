@@ -56,9 +56,12 @@ protected:
 public:
     using label_t=LabelType;
     using segment_t=Segment<label_t>;
-    using segment_set_t=span<segment_t>;
-    using objects_t=span<segment_set_t>;
+    
+    using scanline_t=span<segment_t>;
+    using component_t=span<segment_t>;
 
+    using components_t=span<component_t>;
+    using scanlines_t=span<scanline_t>;
 
     // Dimensions of source image
     size_t width() const { return m_columns; }
@@ -69,10 +72,14 @@ public:
 
     SegmentImage(size_t rows,size_t columns);
 
-    void update(const uint8_t* boolean_image,ConnectivitySelection cs);
+    // Perform connected components on boolean image
+    void update(const uint8_t* boolean_image, const ConnectivitySelection cs = CROSS);
 
-    objects_t segments_by_row() const;
-    objects_t segments_by_label() const;
+    scanlines_t scanlines() const;
+    components_t components() const;
+    component_t component(const label_t lb) const {
+        return components()[lb];
+    }
     
     SegmentImage(const SegmentImage&);
     SegmentImage& operator=(const SegmentImage&);
@@ -80,6 +87,13 @@ public:
     SegmentImage& operator=(SegmentImage&&);
     ~SegmentImage();
 };
+
+template<class label_t>
+inline SegmentImage<label_t> bwlabel(const size_t rows,const size_t columns,const uint8_t* boolean_image, const ConnectivitySelection cs = CROSS){
+    SegmentImage<label_t> segs(rows,columns);
+    segs.update(boolean_image,cs);
+    return segs;
+}
 
 }
 
