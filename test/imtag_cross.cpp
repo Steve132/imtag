@@ -9,7 +9,6 @@ int main(int argc,char** argv)
 	std::string fname = argv[1];
 	std::cout << "Loading: " << fname << std::endl;
 	stbi::Image bwimage(fname);
-	std::cout << "Dims: " << bwimage.width() << "x" << bwimage.height() << std::endl;
 
 	auto segs = imtag::bwlabel<uint16_t>(bwimage.height(), bwimage.width(), bwimage.data());
 	std::cout << "# components: " << segs.components().size() << std::endl;
