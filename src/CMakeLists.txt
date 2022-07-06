@@ -3,9 +3,17 @@ add_library(imtag
     imtag.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/imtag.hpp
     disjoint_set.hpp
+	SegmentImageImpl.hpp
     SegmentImageImpl.cpp
     SegmentImageImpl_Scanline.cpp
 )
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+	#target_compile_options(imtag PRIVATE "${OpenMP_CXX_FLAGS}")
+	target_link_libraries(imtag PUBLIC OpenMP::OpenMP_CXX)
+	#target_include_directories(imtag PUBLIC OpenMP::OpenMP_CXX_INCLUDE_DIRS)
+endif()
 
 target_include_directories(imtag PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>"

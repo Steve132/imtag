@@ -2,6 +2,9 @@
 
 #include<cstdint>
 #include<cstdlib>
+#include<limits>
+
+#include <omp.h>
 
 template<size_t W>
 struct simd_ops
@@ -122,18 +125,22 @@ void SegmentImageImpl<label_t>::compress_scanlines(
     size_t R,size_t C,
     std::vector<std::vector<seg_t>>& output_rows){
     output_rows.resize(R);
-	label_t label = 0; // TODO: could have label unique per row for optimization.
-    //TODO: OpenMP?
-    for(size_t r=0;r<R;r++){
+
+	label_t label = 0;
+	static constexpr label_t label_max = std::numeric_limits<label_t>::max();
+	// Note: enable openMP for 3x speedup, but not yet correct (need label separate per scanline).
+	//#pragma omp parallel for
+	for(size_t r=0;r<R;r++){
 		// Append segments to this scanline
-        auto& rows=output_rows[r];
-        compress_scanline<default_tag>::impl(binary_image+C*r,r,C,
+		//label_t label = r+R;
+		auto& rows=output_rows[r];
+		compress_scanline<default_tag>::impl(binary_image+C*r,r,C,
 			// Make segment (seg_t) function:
 			[&rows,&label](size_t rind,size_t cbegin,size_t cend){
 				rows.emplace_back(rind,cbegin,cend,label++);
-            }
-        );
-    }
+			}
+		);
+	}
 }
 
 template class SegmentImageImpl<uint8_t>;
