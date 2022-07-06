@@ -1,11 +1,41 @@
 #include "SegmentImageImpl.hpp"
 
-namespace imtag{
+template<class impl_tag>
+struct compress_scanline;
 
-template<class label_t>
-void compress_scanline(const uint8_t* bimg,size_t C,std::vector<Segment<label_t>>& out){
-    using seg_t=Segment<label_t>;
+struct native_tag{};
+
+template<>
+struct compress_scanline<native_tag>{
+
+template<class MakeSeg>
+static void impl(const uint8_t* bimg,size_t rindex,size_t C,MakeSeg&& msfunc){
+    size_t i=0;
+    while(i<C){
+        size_t b=-1;
+        for(;i<C;i++){
+            if(bimg[i] == 0xFF) {
+                b=i;
+                break;
+            }
+        }
+        if(i==C) break;
+        size_t e=C;
+        for(;i<C;i++){
+            if(bimg[i] != 0xFF) {
+                e=i;
+                break;
+            }
+        }
+        msfunc(rindex,b,e);
+    }
 }
+
+};
+
+using default_tag=native_tag;
+
+namespace imtag{
 
 template<class label_t>
 void SegmentImageImpl<label_t>::compress_scanlines(
@@ -15,7 +45,12 @@ void SegmentImageImpl<label_t>::compress_scanlines(
     output_rows.resize(R);
     //TODO: OpenMP?
     for(size_t r=0;r<R;r++){
-        compress_scanline(binary_image+C*r,C,output_rows[r]);
+        auto& rows=output_rows[r];
+        compress_scanline<default_tag>::impl(binary_image+C*r,r,C,
+            [&rows](size_t rind,size_t cbegin,size_t cend){
+                rows.emplace_back(rind,cbegin,cend,0); //TODO: label
+            }
+        );
     }
 }
 
