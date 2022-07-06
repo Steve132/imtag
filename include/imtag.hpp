@@ -52,8 +52,6 @@ public:
     using segment_t=Segment<label_t>;
     using component_t=std::vector<segment_t>;
     using components_t=std::vector<component_t>;
-
-    std::reference_wrapper<components_t> components;
     
     // Dimensions of source image
     size_t width() const { return m_columns; }
@@ -61,6 +59,8 @@ public:
     size_t rows() const { return m_rows; }
     size_t columns() const { return m_columns; }
     size_t size() const { return m_rows*m_columns; }
+	components_t& components();
+	const components_t& components() const;
 
     SegmentImage(size_t rows,size_t columns);
 
