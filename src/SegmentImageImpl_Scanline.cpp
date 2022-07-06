@@ -82,6 +82,7 @@ struct native_tag{};
 template<>
 struct compress_scanline<native_tag>{
 
+// NOTE: This is BY FAR the performance bottleneck:
 template<class MakeSeg>
 static void impl(const uint8_t* bimg,size_t rindex,size_t C,MakeSeg&& msfunc){
     size_t i=0;
@@ -89,7 +90,7 @@ static void impl(const uint8_t* bimg,size_t rindex,size_t C,MakeSeg&& msfunc){
     while(i<C){
         size_t b=-1;
         for(;i<C;i++){
-			// i=simd_ops<128>::skip_align<false>(bimg,i,C); // comment this line for naive implementation
+			i=simd_ops<128>::skip_align<false>(bimg,i,C);
             if(bimg[i] == 0xFF) {
                 b=i;
                 break;
@@ -98,7 +99,7 @@ static void impl(const uint8_t* bimg,size_t rindex,size_t C,MakeSeg&& msfunc){
         if(i==C) break;
         size_t e=C;
         for(;i<C;i++){
-			// i=simd_ops<128>::skip_align<true>(bimg,i,C); // comment this line for naive implementation
+			i=simd_ops<128>::skip_align<true>(bimg,i,C);
             if(bimg[i] != 0xFF) {
                 e=i;
                 break;
