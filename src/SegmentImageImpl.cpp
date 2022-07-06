@@ -27,7 +27,6 @@ void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivityS
 	for(const auto& seg_row : segments_by_row)
 		nsegments += seg_row.size();
 	ds.reset(nsegments);
-	std::cout << "segments_by_row.size: " << segments_by_row.size() << std::endl;
 
     switch(cs){
         case ConnectivitySelection::HORIZONTAL:
@@ -44,6 +43,24 @@ void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivityS
             break;
     }
 	rows_to_components();
+}
+
+template<class label_t>
+BoundingBox SegmentImageImpl<label_t>::bounding_box(const typename SegmentImage<label_t>::component_t& component) const
+{
+	BoundingBox bb;
+	for(const auto& seg : component)
+	{
+		if(bb.top > seg.row)
+			bb.top = seg.row;
+		if(bb.bottom < seg.row)
+			bb.bottom = seg.row;
+		if(bb.left > seg.column_start)
+			bb.left = seg.column_start;
+		if(bb.right < seg.column_end)
+			bb.right = seg.column_end;
+	}
+	return bb;
 }
 
 template<class label_t>

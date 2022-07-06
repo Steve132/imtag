@@ -38,7 +38,6 @@ void Image::write(const std::string& fname) const
 	std::string extension = ".png";
 	if((fname.size() >= 5) && (fname[fname.size() - 4] == '.'))
 		extension = fname.substr(fname.size() - 4);
-	std::cout << "extension:" << extension << std::endl;
 
 	if(extension == ".png")
 	{

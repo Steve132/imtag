@@ -105,7 +105,8 @@ public:
 		if(label_cmp_func::cmp(xroot,yroot)){
 			std::swap(xroot,yroot);
 		}
-		(safe_ref(parents[yroot]))=xroot;
+		//(safe_ref(parents[yroot]))=xroot; // doesn't work.
+		parents[yroot]=xroot;
 		return true;
 	}
 };
