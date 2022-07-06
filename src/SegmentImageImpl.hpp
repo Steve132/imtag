@@ -10,21 +10,23 @@ public:
     typename SegmentImage<label_t>::components_t components;
 
     using seg_t=Segment<label_t>;
+
+    static void compress_scanlines(const uint8_t* binary_image,size_t R,size_t C,
+    std::vector<std::vector<seg_t>>& output_rows);
+
+
     disjoint_set<label_t> ds;
+    std::vector<label_t> cc_nodes;
 
     std::vector<
         std::vector<seg_t>
     > segments_by_row;
 
-    std::vector<
-        std::vector<seg_t>
-    > segments_by_label;
-
     SegmentImageImpl()=default;
     SegmentImageImpl(size_t rows_,size_t cols_){}
 
     void update(const uint8_t* binary_image,ConnectivitySelection cs);
-    void rows_to_labels();
+    void rows_to_components();
 
     template<ConnectivitySelection cs>
     struct cs_tag{};
@@ -33,6 +35,8 @@ public:
     void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::HORIZONTAL>);
     void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::VERTICAL>);
     void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::EIGHT_WAY>);
+
+
     
 };
 

@@ -1,11 +1,29 @@
 #include "SegmentImageImpl.hpp"
-
+#include <stdexcept>
 
 namespace imtag{
-    
+
+
+
+template<class label_t>
+void SegmentImageImpl<label_t>::rows_to_components(){
+    cc_nodes.resize(ds.size());
+    size_t M=ds.compressed_freeze(cc_nodes.data());
+    components.resize(M);
+    for(auto& scanline : segments_by_row){
+        for(auto& seg : scanline){
+            auto seg_copy=seg;
+            seg_copy.label=cc_nodes[seg.label];
+            components[seg_copy.label].push_back(seg_copy);
+        }
+    }
+}  
 
 template<class label_t>
 void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivitySelection cs){
+    if(cs == ConnectivitySelection::VERTICAL) throw std::runtime_error("VERTICAL IS NOT IMPLEMENTED");
+
+    compress_scanlines(binary_image,rows,columns,segments_by_row);
     switch(cs){
         case ConnectivitySelection::HORIZONTAL:
             update_compiletime_dispatch(binary_image,cs_tag<ConnectivitySelection::HORIZONTAL>{});

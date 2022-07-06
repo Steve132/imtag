@@ -93,6 +93,7 @@ public:
 				out[i]=out[r];
 			}
 		}
+		return lsofar;
 	}
 
 	bool unite(label_uint_t x,label_uint_t y) {  //AKA union but that's not a valid keyword in C++

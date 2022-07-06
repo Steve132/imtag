@@ -4,6 +4,7 @@ add_library(imtag
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/imtag.hpp
     disjoint_set.hpp
     SegmentImageImpl.cpp
+    SegmentImageImpl_Scanline.cpp
 )
 
 target_include_directories(imtag PUBLIC
