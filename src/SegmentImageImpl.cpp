@@ -1,9 +1,8 @@
 #include "SegmentImageImpl.hpp"
 #include <stdexcept>
+#include <iostream>
 
 namespace imtag{
-
-
 
 template<class label_t>
 void SegmentImageImpl<label_t>::rows_to_components(){
@@ -24,6 +23,19 @@ void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivityS
     if(cs == ConnectivitySelection::VERTICAL) throw std::runtime_error("VERTICAL IS NOT IMPLEMENTED");
 
     compress_scanlines(binary_image,rows,columns,segments_by_row);
+
+	std::cout << "segments_by_row.size: " << segments_by_row.size() << std::endl;
+
+	// 1. Verify compress scanlines gets segments per scanline:
+	for(const auto& seg_row : segments_by_row)
+	{
+		for(const auto& seg : seg_row)
+		{
+			std::cout << "seg: " << seg << std::endl;
+		}
+	}
+
+
     switch(cs){
         case ConnectivitySelection::HORIZONTAL:
             update_compiletime_dispatch(binary_image,cs_tag<ConnectivitySelection::HORIZONTAL>{});
@@ -38,6 +50,7 @@ void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivityS
             update_compiletime_dispatch(binary_image,cs_tag<ConnectivitySelection::EIGHT_WAY>{});
             break;
     }
+	rows_to_components();
 }
 
 template<class label_t>

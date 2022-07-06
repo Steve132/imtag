@@ -85,10 +85,11 @@ struct compress_scanline<native_tag>{
 template<class MakeSeg>
 static void impl(const uint8_t* bimg,size_t rindex,size_t C,MakeSeg&& msfunc){
     size_t i=0;
+	// Iterate over one row
     while(i<C){
         size_t b=-1;
         for(;i<C;i++){
-            i=simd_ops<128>::skip_align<false>(bimg,i,C);
+			// i=simd_ops<128>::skip_align<false>(bimg,i,C); // comment this line for naive implementation
             if(bimg[i] == 0xFF) {
                 b=i;
                 break;
@@ -97,17 +98,19 @@ static void impl(const uint8_t* bimg,size_t rindex,size_t C,MakeSeg&& msfunc){
         if(i==C) break;
         size_t e=C;
         for(;i<C;i++){
-            i=simd_ops<128>::skip_align<true>(bimg,i,C);
+			// i=simd_ops<128>::skip_align<true>(bimg,i,C); // comment this line for naive implementation
             if(bimg[i] != 0xFF) {
                 e=i;
                 break;
             }
         }
+		// Make the segment:
         msfunc(rindex,b,e);
     }
 }
 };
 
+// tags for switching optimized versions
 using default_tag=native_tag;
 
 namespace imtag{
@@ -118,12 +121,15 @@ void SegmentImageImpl<label_t>::compress_scanlines(
     size_t R,size_t C,
     std::vector<std::vector<seg_t>>& output_rows){
     output_rows.resize(R);
+	label_t label = 0; // TODO: could have label unique per row for optimization.
     //TODO: OpenMP?
     for(size_t r=0;r<R;r++){
+		// Append segments to this scanline
         auto& rows=output_rows[r];
         compress_scanline<default_tag>::impl(binary_image+C*r,r,C,
-            [&rows](size_t rind,size_t cbegin,size_t cend){
-                rows.emplace_back(rind,cbegin,cend,0); //TODO: label
+			// Make segment (seg_t) function:
+			[&rows,&label](size_t rind,size_t cbegin,size_t cend){
+				rows.emplace_back(rind,cbegin,cend,label++);
             }
         );
     }

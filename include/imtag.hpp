@@ -6,6 +6,7 @@
 #include<memory>
 #include<vector>
 #include<functional>
+#include<iostream>
 
 namespace imtag{
 
@@ -26,6 +27,12 @@ public:
 	bool overlap(const Segment& b) const
 	{
 		return (column_start < b.column_end) && (b.column_start < column_end);
+	}
+
+	friend std::ostream &operator<<(std::ostream &output, const Segment& seg)
+	{
+		output << seg.row << ": " << seg.column_start << ", " << seg.column_end;
+		return output;
 	}
 };
 
