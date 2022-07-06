@@ -48,7 +48,7 @@ public:
 	void reset(label_uint_t N){
 		parents.resize((size_t)N);
 		for(size_t i=0;i<N;i++){
-			data[i]=i;
+			parents[i]=i;
 		}
 	}
 
@@ -151,7 +151,7 @@ class parallel_disjoint_set:
 		>
 {
 protected:
-	using base=::disjoint_set_base<
+	using base=::disjoint_set<
 		label_uint_t,
 		label_cmp_func,
 		std::atomic<label_uint_t>,

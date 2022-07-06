@@ -2,7 +2,8 @@
 add_library(imtag 
     imtag.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/imtag.hpp
-    disjoint_forest.hpp
+    disjoint_set.hpp
+    SegmentImageImpl.cpp
 )
 
 target_include_directories(imtag PUBLIC

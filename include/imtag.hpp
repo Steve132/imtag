@@ -4,8 +4,16 @@
 #include<cstdint>
 #include<cstdlib>
 #include<memory>
+#include<span>
 
 namespace imtag{
+
+#ifdef __cpp_lib_span
+template<class T>
+using span=std::span<T>;
+#else
+#include "span_shim.hpp"
+#endif
 
 template<class label_t>
 class Segment
@@ -27,19 +35,16 @@ public:
 	}
 };
 
-struct pixel_connectivity_t{
-    uint8_t horizontal : 1;
-    uint8_t vertical : 1;
-    uint8_t diagonal : 1;
-    uint8_t : 5; //fill to 8 bits
+enum class ConnectivitySelection{
+    HORIZONTAL,
+    VERTICAL, //this is interesting.
+    CROSS,
+    EIGHT_WAY
 };
 
-static constexpr pixel_connectivity_t FOUR_WAY={1,1,0,0};
-static constexpr pixel_connectivity_t EIGHT_WAY={1,1,1,1};
-static constexpr pixel_connectivity_t HORIZONTAL={1,0,0};
 
 //Todo: runtime threading option?
-template<class label_t>
+template<class LabelType>
 class SegmentImage
 {
 protected:    
@@ -47,30 +52,14 @@ protected:
     std::unique_ptr<Impl> impl;
     size_t m_rows;
     size_t m_columns;
-    pixel_connectivity_t* spare_connectivity_buffer();
     
-    template<uint8_t pc,class Func>
-    void internal_update(Image&& img,Func&& cmpfunc){
-        pixel_connectivity_t* cbuf=connectivity_buffer();
-        for(size_t r=0;r<(m_rows-1);r++)
-        for(size_t c=0;c<(m_columns-1);c++){
-            auto p_center=img(r,c);
-            pixel_connectivity_t& thpc=m_rows*cbuf+m_columns;
-            if constexpr(pc & 0x1){
-            {
-                auto p_right=img(r,c+1);
-                thpc.horizontal=cmpfunc(p_center,p_right);
-            }
-            if constexpr(pc & 0x2){
-                auto p_center=img(r+1,c);
-                thpc.vertical=cmpfunc(p_center,p_down);
-            }
-            auto p2=img(r,c+1);
-
-
-        }
-    }
 public:
+    using label_t=LabelType;
+    using segment_t=Segment<label_t>;
+    using segment_set_t=span<segment_t>;
+    using objects_t=span<segment_set_t>;
+
+
     // Dimensions of source image
     size_t width() const { return m_columns; }
     size_t height() const { return m_rows; }
@@ -78,25 +67,13 @@ public:
     size_t columns() const { return m_columns; }
     size_t size() const { return m_rows*m_columns; }
 
-    SegmentImage(
-        size_t rows,size_t columns,
-        pixel_connectivity_t connectivity_checks);
+    SegmentImage(size_t rows,size_t columns);
 
-    void update(const pixel_connectivity_t* connectivity_image);
+    void update(const uint8_t* boolean_image,ConnectivitySelection cs);
 
-    template<class Image,class Func>
-    void update(Image&& img,Func&& func){
-        pixel_connectivity_t* cbuf=connectivity_buffer();
-        for(size_t r=0;r<m_rows;r++)
-        for(size_t c=0;c<m_columns;c++){
-            auto p_center=img(r,c);
-            auto p_right=img(r,c+1);
-            auto p2=img(r,c+1);
-
-
-        }
-    }
-
+    objects_t segments_by_row() const;
+    objects_t segments_by_label() const;
+    
     SegmentImage(const SegmentImage&);
     SegmentImage& operator=(const SegmentImage&);
     SegmentImage(SegmentImage&&);
