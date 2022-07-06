@@ -7,14 +7,14 @@ namespace imtag{
 template<class label_t>
 SegmentImage<label_t>::SegmentImage(
     size_t rows,size_t columns,
-    pixel_connectivity_t connectivity_checks,
-    const pixel_connectivity_t* connectivity_image):m_rows(rows),m_columns(columns)
+    pixel_connectivity_t connectivity_checks):m_rows(rows),m_columns(columns)
 {
-    update(connectivity_image);
+    //update(connectivity_image);
 }
 template<class label_t>
 void SegmentImage<label_t>::update(
-    const pixel_connectivity_t* connectivity_image){}
+    const pixel_connectivity_t* connectivity_image
+){}
 
 template<class label_t>
 SegmentImage<label_t>::SegmentImage(const SegmentImage& o):

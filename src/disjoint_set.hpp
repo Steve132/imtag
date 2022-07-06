@@ -29,7 +29,7 @@ struct lt_cmp{
 
 //https://arxiv.org/pdf/1911.06347.pdf
 template<	class label_uint_t,
-			class label_cmp_func,
+			class label_cmp_func=prand_cmp,
 			class storage_uint_t=label_uint_t,
 			class safe_ref=std::reference_wrapper<storage_uint_t>
 		 >
@@ -63,13 +63,14 @@ public:
 		}
 		return x;
 	}
-
+	// freeze labels
 	void freeze(label_uint_t* out) const{
 		size_t N=size();
 		for(size_t i=0;i<N;i++){
 			out[i]=find(i);
 		}
 	}
+	// Reduce and linearize labels
 	size_t compressed_freeze(label_uint_t* out) const{
 		size_t N=size();
 		static constexpr label_uint_t HIGH_BIT=static_cast<label_uint_t>(1ULL << (sizeof(label_uint_t)*8-1));
