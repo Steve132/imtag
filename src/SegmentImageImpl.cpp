@@ -8,6 +8,8 @@ template<class label_t>
 void SegmentImageImpl<label_t>::rows_to_components(){
 	cc_nodes.resize(ds.size());
 	size_t M = ds.compressed_freeze(cc_nodes.data());
+	for(auto& component : components)
+		component.clear();
 	components.resize(M);
 	for(auto& scanline : segments_by_row){
 		for(auto& seg : scanline){
