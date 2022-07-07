@@ -30,6 +30,11 @@ public:
 		return (column_start < b.column_end) && (b.column_start < column_end);
 	}
 
+	bool overlap_diag(const Segment& b) const
+	{
+		return (column_start <= b.column_end) && (b.column_start <= column_end);
+	}
+
 	friend std::ostream &operator<<(std::ostream &output, const Segment& seg)
 	{
 		output << seg.row << ": " << seg.column_start << ", " << seg.column_end;

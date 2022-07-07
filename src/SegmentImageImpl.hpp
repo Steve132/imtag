@@ -3,6 +3,9 @@
 
 namespace imtag{
 
+template<ConnectivitySelection cs>
+struct cs_tag{};
+
 template<class label_t>
 class SegmentImageImpl{
 public:
@@ -31,8 +34,8 @@ public:
 
 	BoundingBox bounding_box(const typename SegmentImage<label_t>::component_t& component) const;
 
-    template<ConnectivitySelection cs>
-    struct cs_tag{};
+	template<class CS_TAG>
+	void update_compiletime_dispatch_connectivity(const uint8_t* binary_image,CS_TAG);
 
     void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::CROSS>);
     void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::HORIZONTAL>);
