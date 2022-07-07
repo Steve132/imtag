@@ -34,8 +34,8 @@ public:
 
 	BoundingBox bounding_box(const typename SegmentImage<label_t>::component_t& component) const;
 
-	template<class CS_TAG>
-	void update_compiletime_dispatch_connectivity(const uint8_t* binary_image,CS_TAG);
+	template<ConnectivitySelection cs>
+	void update_compiletime_dispatch_connectivity(const uint8_t* binary_image);
 
     void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::CROSS>);
     void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::HORIZONTAL>);

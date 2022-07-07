@@ -72,30 +72,9 @@ void SegmentImageImpl<label_t>::update_compiletime_dispatch
 	// Default.  Do not union at all.
 }
 
-template<class label_t, class CS_TAG>
-struct segment_overlap_select;
-
 template<class label_t>
-struct segment_overlap_select<label_t, cs_tag<ConnectivitySelection::CROSS>>
-{
-	static bool overlap(const typename SegmentImage<label_t>::segment_t& a, const typename SegmentImage<label_t>::segment_t& b)
-	{
-		return a.overlap(b);
-	}
-};
-
-template<class label_t>
-struct segment_overlap_select<label_t, cs_tag<ConnectivitySelection::EIGHT_WAY>>
-{
-	static bool overlap(const typename SegmentImage<label_t>::segment_t& a, const typename SegmentImage<label_t>::segment_t& b)
-	{
-		return a.overlap_diag(b);
-	}
-};
-
-template<class label_t>
-template<class CS_TAG>
-void SegmentImageImpl<label_t>::update_compiletime_dispatch_connectivity(const uint8_t* binary_image,CS_TAG)
+template<ConnectivitySelection cs>
+void SegmentImageImpl<label_t>::update_compiletime_dispatch_connectivity(const uint8_t* binary_image)
 {
 	for(size_t y = 1; y < segments_by_row.size(); y++)
 	{
@@ -106,8 +85,16 @@ void SegmentImageImpl<label_t>::update_compiletime_dispatch_connectivity(const u
 		{
 			for(auto& prev_segment : prev_segments)
 			{
-				if(segment_overlap_select<label_t,CS_TAG>::overlap(segment,prev_segment))
-					ds.unite(segment.label, prev_segment.label);
+				if constexpr (cs == ConnectivitySelection::EIGHT_WAY)
+				{
+					if(segment.overlap_diag(prev_segment))
+						ds.unite(segment.label, prev_segment.label);
+				}
+				else
+				{
+					if(segment.overlap(prev_segment))
+						ds.unite(segment.label, prev_segment.label);
+				}
 			}
 		}
 	}
@@ -117,13 +104,13 @@ template<class label_t>
 void SegmentImageImpl<label_t>::update_compiletime_dispatch
 (const uint8_t* binary_image,cs_tag<ConnectivitySelection::CROSS>)
 {
-	update_compiletime_dispatch_connectivity(binary_image,cs_tag<ConnectivitySelection::CROSS>{});
+	update_compiletime_dispatch_connectivity<ConnectivitySelection::CROSS>(binary_image);
 }
 template<class label_t>
 void SegmentImageImpl<label_t>::update_compiletime_dispatch
 (const uint8_t* binary_image,cs_tag<ConnectivitySelection::EIGHT_WAY>)
 {
-	update_compiletime_dispatch_connectivity(binary_image,cs_tag<ConnectivitySelection::EIGHT_WAY>{});
+	update_compiletime_dispatch_connectivity<ConnectivitySelection::EIGHT_WAY>(binary_image);
 }
 template<class label_t>
 void SegmentImageImpl<label_t>::update_compiletime_dispatch
