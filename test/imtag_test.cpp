@@ -25,7 +25,7 @@ int main(int argc,char** argv)
 
 	if(do_benchmark)
 	{
-		size_t niters = 5000;
+		size_t niters = 2000;
 		auto z = [&bwimage](){ auto segs = imtag::bwlabel<uint16_t>(bwimage.height(), bwimage.width(), bwimage.data()); };
 		benchmark(z, niters);
 	}

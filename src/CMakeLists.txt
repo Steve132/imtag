@@ -10,9 +10,7 @@ add_library(imtag
 
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
-	#target_compile_options(imtag PRIVATE "${OpenMP_CXX_FLAGS}")
-	target_link_libraries(imtag PUBLIC OpenMP::OpenMP_CXX)
-	#target_include_directories(imtag PUBLIC OpenMP::OpenMP_CXX_INCLUDE_DIRS)
+	target_link_libraries(imtag PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
 target_include_directories(imtag PUBLIC

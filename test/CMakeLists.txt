@@ -4,7 +4,10 @@ add_executable(imtag_test_blob
 )
 target_link_libraries(imtag_test_blob PRIVATE imtag)
 
-add_executable(imtag_test_cross
-	imtag_cross.cpp
+add_executable(imtag_test
+	imtag_test.cpp
 )
-target_link_libraries(imtag_test_cross PRIVATE imtag stb_image)
+target_link_libraries(imtag_test PRIVATE imtag stb_image)
+target_compile_options(imtag_test PRIVATE
+	$<$<CONFIG:Release>:-Ofast -march=native>
+	$<$<CONFIG:RelWithDebInfo>:-Ofast -march=native>)
