@@ -6,7 +6,8 @@ namespace imtag{
 
 template<class label_t>
 void SegmentImageImpl<label_t>::rows_to_components(){
-	cc_nodes.resize(ds.size(),std::numeric_limits<label_t>::max());
+	cc_nodes.resize(ds.size());
+	std::fill(cc_nodes.begin(), cc_nodes.end(), std::numeric_limits<label_t>::max());
 	size_t M = ds.compressed_freeze(cc_nodes.data());
 	components.resize(M);
 	for(auto& scanline : segments_by_row){

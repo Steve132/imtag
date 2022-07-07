@@ -23,15 +23,17 @@ int main(int argc,char** argv)
 	std::cout << "Loading: " << fname << std::endl;
 	stbi::Image bwimage(fname);
 
+	auto segs = imtag::SegmentImage<uint16_t>(bwimage.height(), bwimage.width());
 	if(do_benchmark)
 	{
 		size_t niters = 2000;
-		auto z = [&bwimage](){ auto segs = imtag::bwlabel<uint16_t>(bwimage.height(), bwimage.width(), bwimage.data()); };
+		auto z = [&bwimage, &segs](){ segs.update(bwimage.data()); };
+		//auto z = [&bwimage](){ auto segs = imtag::bwlabel<uint16_t>(bwimage.height(), bwimage.width(), bwimage.data()); };
 		benchmark(z, niters);
 	}
 
 	// Debug output:
-	auto segs = imtag::bwlabel<uint16_t>(bwimage.height(), bwimage.width(), bwimage.data());
+	//auto segs0 = imtag::bwlabel<uint16_t>(bwimage.height(), bwimage.width(), bwimage.data());
 	std::cout << "# components: " << segs.components().size() << std::endl;
 
 	for(const auto& component : segs.components())

@@ -131,6 +131,7 @@ void SegmentImageImpl<label_t>::compress_scanlines(
 		// Append segments to this scanline
 		label_t rlabel = 0;
 		auto& rows=output_rows[r];
+		rows.clear();
 		compress_scanline<default_tag>::impl(binary_image+C*r,r,C,
 			// Make segment (seg_t) function:
 			[&rows,&rlabel](size_t rind,size_t cbegin,size_t cend){
