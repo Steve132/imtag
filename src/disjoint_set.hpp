@@ -73,20 +73,19 @@ public:
 	// Reduce and linearize labels: need out to be set to label_max before!
 	size_t compressed_freeze(label_uint_t* out) const{
 		size_t N=size();
+		static constexpr label_uint_t UNSET_LABEL = std::numeric_limits<label_uint_t>::max();
+		std::fill(out, out + N, UNSET_LABEL);
 
 		// 0 1 2 3 4 5 6 7 8 9
 		// a b a a c c d a d b
-
-		// remap:
+		// Use out as remap:
 		// 0 1 2 3 4 5 6 7 8 9
 		// becomes:
 		// 0 1 0 0 2 2 3 0 3 1
-
-		label_uint_t label_max = std::numeric_limits<label_uint_t>::max();
 		label_uint_t new_label = 0;
 		for(size_t i=0;i<N;i++){
 			label_uint_t r = find(i);
-			if(out[r] == label_max) // need out to be set to label_max before!
+			if(out[r] == UNSET_LABEL)
 			{
 				out[r] = new_label;
 				new_label++;
@@ -96,7 +95,7 @@ public:
 		return new_label;
 	}
 
-	// Reduce and linearize labels: not working
+	// Reduce and linearize labels: not working  TODO: Potentially faster for cache behavior
 	size_t compressed_freeze_bitmask(label_uint_t* out) const{
 		size_t N=size();
 		// 0111...1, where the highest bit is set to 0
