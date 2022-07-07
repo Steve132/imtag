@@ -73,6 +73,17 @@ void SegmentImageImpl<label_t>::update_compiletime_dispatch
 }
 
 template<class label_t>
+static inline bool overlap(const Segment<label_t>& a,const Segment<label_t>& b){
+	return (a.column_start < b.column_end) && (b.column_start < a.column_end);
+}
+template<class label_t>
+static inline bool overlap_diag(const Segment<label_t>& a,const Segment<label_t>& b) {
+
+    return (a.column_start <= b.column_end) && (b.column_start <= a.column_end);
+}
+
+
+template<class label_t>
 template<ConnectivitySelection cs>
 void SegmentImageImpl<label_t>::update_compiletime_dispatch_connectivity(const uint8_t* binary_image)
 {
@@ -87,12 +98,12 @@ void SegmentImageImpl<label_t>::update_compiletime_dispatch_connectivity(const u
 			{
 				if constexpr (cs == ConnectivitySelection::EIGHT_WAY)
 				{
-					if(segment.overlap_diag(prev_segment))
+					if(overlap_diag(segment,prev_segment))
 						ds.unite(segment.label, prev_segment.label);
 				}
 				else
 				{
-					if(segment.overlap(prev_segment))
+					if(overlap(segment,prev_segment))
 						ds.unite(segment.label, prev_segment.label);
 				}
 			}

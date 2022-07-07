@@ -25,16 +25,6 @@ public:
 	Segment(const coord_t row_,const coord_t column_start_, const coord_t column_end_, const label_t label_): 
         row(row_),column_start(column_start_),column_end(column_end_),label(label_) {}
 
-	bool overlap(const Segment& b) const
-	{
-		return (column_start < b.column_end) && (b.column_start < column_end);
-	}
-
-	bool overlap_diag(const Segment& b) const
-	{
-		return (column_start <= b.column_end) && (b.column_start <= column_end);
-	}
-
 	friend std::ostream &operator<<(std::ostream &output, const Segment& seg)
 	{
 		output << seg.row << ": " << seg.column_start << ", " << seg.column_end;
