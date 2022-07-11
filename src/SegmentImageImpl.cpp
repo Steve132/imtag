@@ -48,24 +48,6 @@ void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivityS
 }
 
 template<class label_t>
-BoundingBox SegmentImageImpl<label_t>::bounding_box(const typename SegmentImage<label_t>::component_t& component) const
-{
-	BoundingBox bb;
-	for(const auto& seg : component)
-	{
-		if(bb.top > seg.row)
-			bb.top = seg.row;
-		if(bb.bottom < seg.row)
-			bb.bottom = seg.row;
-		if(bb.left > seg.column_start)
-			bb.left = seg.column_start;
-		if(bb.right < seg.column_end)
-			bb.right = seg.column_end;
-	}
-	return bb;
-}
-
-template<class label_t>
 void SegmentImageImpl<label_t>::update_compiletime_dispatch
 (const uint8_t* binary_image,cs_tag<ConnectivitySelection::HORIZONTAL>)
 {
