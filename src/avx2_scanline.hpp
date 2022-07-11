@@ -246,9 +246,6 @@ struct find_next_limit<128,mask>{
     }
 };
 
-
-
-
 template<bool mask>
 index_t find_next(const uint8_t* buf,index_t N){
     return find_next_nolimit<32,mask>::impl(buf,N);
