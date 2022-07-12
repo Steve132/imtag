@@ -3,7 +3,15 @@
 namespace avx2{
 #include "avx2_scanline.hpp"
 }
-
+bool check64(const std::array<uint8_t,64>& a)
+{
+    uint8_t r=0;
+    #pragma omp simd reduction(|:r)
+    for (size_t i = 0 ; i < 64 ; i++) {
+        r |= a[i];
+    }
+    return r!=0;
+}
 namespace naive{
     template<bool mask>
     uint_fast16_t find_next(const uint8_t* bimg,uint_fast16_t N){
