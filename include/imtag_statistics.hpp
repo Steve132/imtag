@@ -67,24 +67,21 @@ size_t npixels(const std::vector<Segment<LabelType>>& component)
 
 template <class LabelType>
 std::pair<typename Segment<LabelType>::coord_t, typename Segment<LabelType>::coord_t> 
-	massCenter2(const std::vector<Segment<LabelType>>& component)
+	centroid(const std::vector<Segment<LabelType>>& component)
 {
 	size_t sx=0,sy=0;
 	size_t t=0;
 
-	//	0+1+2+3+4+5
-	//- 0+1
-
 	for(const Segment<LabelType>& seg : component){
+		// Closed form solution for sequence of for(x = col start to col end) tx += x:
 		size_t tx=((seg.column_end-1)*seg.column_end) - ((seg.column_start-1)*seg.column_start);
-		tx/=2;
 		size_t n=seg.column_end-seg.column_start;
 		sx+=tx;
 		sy+=n*seg.row;
 		t+=n;
 	}
 	return std::make_pair<typename Segment<LabelType>::coord_t,typename Segment<LabelType>::coord_t>(
-		sx/t,sy/t
+		sx/(2*t),sy/t
 	);
 }
 

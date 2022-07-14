@@ -28,7 +28,7 @@ int main(int argc,char** argv)
 	}
 	std::cout << "Loading: " << fname << std::endl;
 	stbi::Image bwimage(fname,1);
-	bwimage.write("test.png");
+	//bwimage.write("test.png");
 
 	auto segs = imtag::SegmentImage<uint16_t>(bwimage.height(), bwimage.width());
 	if(do_benchmark)
@@ -59,7 +59,7 @@ int main(int argc,char** argv)
 		bb.draw(bwimage.data(), bwimage.width(), bwimage.nchannels());
 
 		// Draw center of component
-		auto center = massCenter(component);
+		auto center = centroid(component);
 		if((center.first < labelImage.width()) && (center.second < labelImage.height()))
 			labelImage.draw_crosshair(center.first, center.second, 4, 255, 255, 255);
 	}
