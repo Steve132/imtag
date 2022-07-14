@@ -1,7 +1,7 @@
 #include "cvConnectedComponentsWithStats.h"
 #include <opencv2/opencv.hpp>
 
-std::vector<int> cvConnectedComponentsWithStats(const uint8_t* image, const size_t width, const size_t height, const int connectivity)
+std::vector<int> cvConnectedComponentsWithStats(const uint8_t* image, const size_t width, const size_t height, const int connectivity, const bool onlyBenchmark)
 {
 	cv::Mat centroids, stats;
 	cv::Mat bw(height, width, CV_8UC1, const_cast<unsigned char*>(image));
@@ -9,14 +9,18 @@ std::vector<int> cvConnectedComponentsWithStats(const uint8_t* image, const size
 	cv::Mat labelImage(height, width, CV_32S);
 	int nLabels = cv::connectedComponentsWithStats(bw, labelImage, stats, centroids, connectivity);
 
-	std::vector<int> v(height*width);
-	if(labelImage.isContinuous())
-		v.assign((int*)labelImage.data, (int*)labelImage.data + labelImage.total());
-	else
+	if(!onlyBenchmark)
 	{
-		for (int i = 0; i < labelImage.rows; ++i)
-			v.insert(v.end(), labelImage.ptr<int>(i), labelImage.ptr<int>(i) + labelImage.cols);
+		std::vector<int> labelImg;
+		labelImg.reserve(height*width);
+		if(labelImage.isContinuous())
+			labelImg.assign((int*)labelImage.data, (int*)labelImage.data + labelImage.total());
+		else
+		{
+			for (int i = 0; i < labelImage.rows; ++i)
+				labelImg.insert(labelImg.end(), labelImage.ptr<int>(i), labelImage.ptr<int>(i) + labelImage.cols);
+		}
+		return labelImg;
 	}
-
-	return v;
+	return {};
 }

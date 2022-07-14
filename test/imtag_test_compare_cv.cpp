@@ -96,13 +96,16 @@ int main(int argc,char** argv)
 	auto segs = imtag::SegmentImage<uint16_t>(bwimage.height(), bwimage.width());
 	if(do_benchmark)
 	{
-		size_t niters = 1;
+		size_t niters = 2000;
 		auto z = [&bwimage, &segs](){ segs.update(bwimage.data(), imtag::ConnectivitySelection::CROSS); };
-		//auto z = [&bwimage](){ auto segs = imtag::bwlabel<uint16_t>(bwimage.height(), bwimage.width(), bwimage.data()); };
+		auto z2 = [&bwimage](){ auto segs = cvConnectedComponentsWithStats(bwimage.data(), bwimage.width(), bwimage.height(), 4); };
+		std::cout << "Imtag benchmark: ";
 		benchmark(z, niters);
+		std::cout << "CV_CC benchmark: ";
+		benchmark(z2, niters);
 	}
 
-	std::vector<int> labelImage = cvConnectedComponentsWithStats(bwimage.data(), bwimage.width(), bwimage.height(), 4);
+	std::vector<int> labelImage = cvConnectedComponentsWithStats(bwimage.data(), bwimage.width(), bwimage.height(), 4, false);
 	compareLabelImage(labelImage, segs);
 
 	// Debug output:
