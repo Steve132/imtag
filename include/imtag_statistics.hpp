@@ -27,19 +27,19 @@ public:
 
 // TODO: Make Component a type, add these methods to component:
 template<class LabelType>
-BoundingBox bounding_box(const std::vector<Segment<LabelType>>& component);
+BoundingBox bounding_box(const Component<LabelType>& component);
 
 template<class LabelType>
-size_t npixels(const std::vector<Segment<LabelType>>& component);
+size_t npixels(const Component<LabelType>& component);
 
 template<class LabelType>
-std::pair<typename Segment<LabelType>::coord_t, typename Segment<LabelType>::coord_t> massCenter(const std::vector<Segment<LabelType>>& component);
+std::pair<typename Segment<LabelType>::coord_t, typename Segment<LabelType>::coord_t> massCenter(const Component<LabelType>& component);
 
 template<class LabelType>
-void draw(const std::vector<Segment<LabelType>>& component, uint8_t* image, const size_t image_width, const int nchannels = 1);
+void draw(const Component<LabelType>& component, uint8_t* image, const size_t image_width, const int nchannels = 1);
 
 template<class LabelType>
-BoundingBox bounding_box(const std::vector<Segment<LabelType>>& component)
+BoundingBox bounding_box(const Component<LabelType>& component)
 {
 	BoundingBox bb;
 	for(const auto& seg : component)
@@ -57,7 +57,7 @@ BoundingBox bounding_box(const std::vector<Segment<LabelType>>& component)
 }
 
 template<class LabelType>
-size_t npixels(const std::vector<Segment<LabelType>>& component)
+size_t npixels(const Component<LabelType>& component)
 {
 	size_t sum = 0;
 	for(const auto& seg : component)
@@ -67,7 +67,7 @@ size_t npixels(const std::vector<Segment<LabelType>>& component)
 
 template <class LabelType>
 std::pair<typename Segment<LabelType>::coord_t, typename Segment<LabelType>::coord_t> 
-	centroid(const std::vector<Segment<LabelType>>& component)
+	centroid(const Component<LabelType>& component)
 {
 	size_t sx=0,sy=0;
 	size_t t=0;
@@ -86,7 +86,7 @@ std::pair<typename Segment<LabelType>::coord_t, typename Segment<LabelType>::coo
 }
 
 template <class LabelType>
-void draw(const std::vector<Segment<LabelType>>& component, uint8_t* image, const size_t image_width, const int nchannels = 1, const uint8_t c0 = 0, const uint8_t c1 = 0, const uint8_t c2 = 0)
+void draw(const Component<LabelType>& component, uint8_t* image, const size_t image_width, const int nchannels = 1, const uint8_t c0 = 0, const uint8_t c1 = 0, const uint8_t c2 = 0)
 {
 	for(const auto& seg : component)
 	{

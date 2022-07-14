@@ -11,10 +11,11 @@
 
 namespace imtag{
 
-template<class label_t>
+template<class LabelType>
 class Segment
 {
 public:
+    using label_t=LabelType;
     using coord_t=uint16_t;
 
     coord_t row;
@@ -30,6 +31,15 @@ public:
 		output << seg.row << ": " << seg.column_start << ", " << seg.column_end;
 		return output;
 	}
+};
+
+template<class LabelType>
+struct Component: public std::vector<Segment<LabelType>>{
+    using segment_t=Segment<LabelType>;
+    using coord_t=typename Segment<LabelType>::coord_t;
+    using label_t=typename Segment<LabelType>::label_t;
+
+    using std::vector<segment_t>::vector;
 };
 
 enum class ConnectivitySelection{
@@ -52,7 +62,7 @@ protected:
 public:
     using label_t=LabelType;
     using segment_t=Segment<label_t>;
-    using component_t=std::vector<segment_t>;
+    using component_t=Component<label_t>;
     using components_t=std::vector<component_t>;
     
     // Dimensions of source image
