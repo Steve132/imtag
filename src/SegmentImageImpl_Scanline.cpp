@@ -84,7 +84,7 @@ void SegmentImageImpl<label_t>::compress_scanlines(
 
 	uint_fast16_t R16 = static_cast<uint_fast16_t>(R);
 	uint_fast16_t C16 = static_cast<uint_fast16_t>(C);
-	//#pragma omp parallel for
+	#pragma omp parallel for
 	for(uint_fast16_t r=0;r<R16;r++){
 		// Append segments to this scanline
 		label_t rlabel = 0;
