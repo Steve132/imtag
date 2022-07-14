@@ -31,24 +31,29 @@ namespace naive_align64{
 		return static_cast<uint_fast16_t>(reinterpret_cast<uintptr_t>(bimg) & (W-1));
 	}
     template<bool mask>
-    uint_fast16_t find_next(const uint8_t* bimg,uint_fast16_t N){
+    uint_fast16_t find_next(const uint8_t* bimg,uint_fast16_t Ni){
+		uint_fast16_t N=Ni;
 		uint_fast16_t offset=0;
 		uint_fast16_t a1=dynamic_alignof<8>(bimg);
-		uint_fast16_t Nupper=8-a1;
-		offset= (a1 == 0) ? Nupper : naive::find_next<mask>(bimg,Nupper);
-		if(offset < Nupper) return offset;
-		N-=Nupper;
-		const uint64_t* bimg64=reinterpret_cast<const uint64_t*>(bimg+Nupper);
+		if(a1){
+			uint_fast16_t Nremain=8-a1;
+			offset=naive::find_next<mask>(bimg,Nremain);
+			if(offset < Nremain) {
+				return offset;
+			}
+			N-=Nremain;
+		}
+		const uint64_t* bimg64=reinterpret_cast<const uint64_t*>(bimg+offset);
 		uint_fast16_t M=N/8;
 		for(uint_fast16_t i=0;i<M;i++){
             static constexpr uint64_t TEST64= (mask ? 0x0ULL : 0xFFFFFFFFFFFFFFFFULL);
 			if(bimg64[i]!=TEST64){
-                return offset+naive::find_next<mask>(bimg+offset+8*i,8);
+				uint_fast16_t c=offset+8*i;
+                return c+naive::find_next<mask>(bimg+c,8);
             }
         }
 		offset+=M*8;
-		if(offset >= N) return N;
-		return offset+naive::find_next<mask>(bimg+offset,N-offset);
+		return offset+naive::find_next<mask>(bimg+offset,N-M*8);
     }
 }
 
@@ -60,13 +65,13 @@ static void compress_scanline(const uint8_t* bimg,const uint_fast16_t rindex,con
     while(i<C){
 		// Search for 1s
 		uint_fast16_t beginning;
-        i+=naive::find_next<true>(bimg+i,C-i);
+        i+=naive_align64::find_next<true>(bimg+i,C-i);
         if(i==C) {
             break;
         }
         beginning=i;
 		uint_fast16_t ending=C;
-        i+=naive::find_next<false>(bimg+i,C-i);
+        i+=naive_align64::find_next<false>(bimg+i,C-i);
 		ending=i;
         msfunc(rindex,beginning,ending);
     }
