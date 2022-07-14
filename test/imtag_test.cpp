@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream>
 #include <cstring>
+#include "cv_comparison/cvConnectedComponentsWithStats.h"
 
 template <typename FUNC>
 void benchmark(FUNC f, const size_t niters = 1000)
