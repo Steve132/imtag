@@ -36,6 +36,11 @@ Image::Image(const int width, const int height, const int nchannels) :
 	data_.resize(size);
 }
 
+void Image::fill(const uint8_t c0)
+{
+	std::fill(data_.begin(), data_.end(), c0);
+}
+
 void Image::write(const std::string& fname) const
 {
 	std::string extension = ".png";
@@ -59,6 +64,71 @@ void Image::write(const std::string& fname) const
 	}
 	else
 		throw std::runtime_error("Unsupported extension requested for write.  Available: png, bmp, jpg.");
+}
+
+void Image::draw_point(const uint16_t x, const uint16_t y, const uint8_t c0, const uint8_t c1, const uint8_t c2)
+{
+	if((x >= width_) || (y >= height_))
+		return;
+	uint8_t* image_top_left = data_.data() + y*width_*nchannels_ + x*nchannels_;
+	image_top_left[0] = c0;
+	if(nchannels_ >= 2)
+		image_top_left[1] = c1;
+	if(nchannels_ >= 3)
+		image_top_left[2] = c2;
+}
+
+void Image::draw_horz_or_vert_line(const uint16_t x0, const uint16_t y0, const uint16_t x1, const uint16_t y1, const uint8_t c0, const uint8_t c1, const uint8_t c2)
+{
+	if(	(x0 >= width_) || (y0 >= height_) ||
+		(x1 >= width_) || (y1 >= height_) )
+		return;
+
+	uint8_t* image_top_left = data_.data() + y0*width_*nchannels_ + x0*nchannels_;
+	if(y0 == y1)
+	{
+		if((nchannels_ == 1) || (nchannels_ == 3 && (c0 == c1) && (c0 == c2)) || ((nchannels_ == 2) && (c0 == c1)))
+			std::fill(image_top_left, image_top_left + ((x1 - x0)*nchannels_), c0);
+		// RGB c0 c1 c2 align struct pixel_t {c0,c1,c2} then std::fill with pixel_t
+
+		uint8_t color[] = {c0, c1, c2};
+		for(uint16_t x = 0; x < x1-x0; x++)
+		{
+			uint8_t* image_pix = (image_top_left + x*nchannels_);
+			for(uint16_t c = 0; c < nchannels_; c++)
+				image_pix[c] = color[c];
+		}
+	}
+	else if(x0 == x1)
+	{
+		uint8_t color[] = {c0, c1, c2};
+		for(uint16_t y = 0; y < y1-y0; y++)
+		{
+			uint8_t* image_pix = (image_top_left + y*width_*nchannels_);
+			for(uint16_t c = 0; c < nchannels_; c++)
+				image_pix[c] = color[c];
+		}
+	}
+	else
+	{
+		// TODO: y = mx + b from 2 points
+	}
+}
+
+void Image::draw_crosshair(const uint16_t x, const uint16_t y, const uint16_t half_length, const uint8_t c0, const uint8_t c1, const uint8_t c2)
+{
+	if((x >= width_) || (y >= height_))
+		return;
+
+	// vertical
+	draw_horz_or_vert_line(
+		x,half_length > y ? 0 : y - half_length,
+		x,(std::min)(height_-1,y + half_length + 1), c0, c1, c2);
+
+	// horizontal
+	draw_horz_or_vert_line(
+		half_length > x ? 0 : x - half_length, y,
+		(std::min)(width_-1,x + half_length + 1), y, c0, c1, c2);
 }
 
 }

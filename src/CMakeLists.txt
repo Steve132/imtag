@@ -2,6 +2,8 @@
 add_library(imtag 
     imtag.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/imtag.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../include/imtag_statistics.hpp
+	imtag_statistics.cpp
     disjoint_set.hpp
 	SegmentImageImpl.hpp
     SegmentImageImpl.cpp

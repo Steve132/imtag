@@ -39,26 +39,6 @@ enum class ConnectivitySelection{
     EIGHT_WAY
 };
 
-class BoundingBox
-{
-public:
-	using coord_t=uint16_t;
-
-	BoundingBox(const coord_t top_ = std::numeric_limits<coord_t>::max(), const coord_t left_ = std::numeric_limits<coord_t>::max(), const coord_t right_ = 0, const coord_t bottom_ = 0) :
-		top(top_), left(left_), right(right_), bottom(bottom_)
-	{}
-	void draw(uint8_t* image, const size_t image_width, const int nchannels = 1) const;
-	friend std::ostream &operator<<(std::ostream &output, const BoundingBox& bb)
-	{
-		output << bb.left << ", " << bb.top << " to " << bb.right << ", " << bb.bottom;
-		return output;
-	}
-	coord_t top;	// y coord
-	coord_t left;	// x coord
-	coord_t right;	// x coord (just past bb)
-	coord_t bottom;	// y coord (just past bb)
-};
-
 //Todo: runtime threading option?
 template<class LabelType>
 class SegmentImage
@@ -83,7 +63,6 @@ public:
     size_t size() const { return m_rows*m_columns; }
 	components_t& components();
 	const components_t& components() const;
-	BoundingBox bounding_box(const component_t& component) const;
 
     SegmentImage(size_t rows,size_t columns);
 

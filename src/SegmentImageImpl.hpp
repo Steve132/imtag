@@ -32,8 +32,6 @@ public:
     void update(const uint8_t* binary_image,ConnectivitySelection cs);
     void rows_to_components();
 
-	BoundingBox bounding_box(const typename SegmentImage<label_t>::component_t& component) const;
-
 	template<ConnectivitySelection cs>
 	void update_compiletime_dispatch_connectivity(const uint8_t* binary_image);
 
