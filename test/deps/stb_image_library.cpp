@@ -17,6 +17,9 @@ Image::Image(const std::string& fname, const int nchannels)
 	{
 		throw std::runtime_error("Could not load " + fname);
 	}
+	if(nchannels != 0){
+		nchannels_=nchannels;
+	}
 	// copy from stb memory to vectory so that there's no destructor required
 	size_t size = width_*height_*nchannels_;
 	data_.resize(size);

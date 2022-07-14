@@ -60,13 +60,13 @@ static void compress_scanline(const uint8_t* bimg,const uint_fast16_t rindex,con
     while(i<C){
 		// Search for 1s
 		uint_fast16_t beginning;
-        i+=naive_align64::find_next<true>(bimg+i,C-i);
+        i+=naive::find_next<true>(bimg+i,C-i);
         if(i==C) {
             break;
         }
         beginning=i;
 		uint_fast16_t ending=C;
-        i+=naive_align64::find_next<false>(bimg+i,C-i);
+        i+=naive::find_next<false>(bimg+i,C-i);
 		ending=i;
         msfunc(rindex,beginning,ending);
     }
@@ -84,7 +84,7 @@ void SegmentImageImpl<label_t>::compress_scanlines(
 
 	uint_fast16_t R16 = static_cast<uint_fast16_t>(R);
 	uint_fast16_t C16 = static_cast<uint_fast16_t>(C);
-	#pragma omp parallel for
+	//#pragma omp parallel for
 	for(uint_fast16_t r=0;r<R16;r++){
 		// Append segments to this scanline
 		label_t rlabel = 0;

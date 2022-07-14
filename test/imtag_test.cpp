@@ -16,12 +16,17 @@ void benchmark(FUNC f, const size_t niters = 1000)
 
 int main(int argc,char** argv)
 {
-	if(argc < 2)
-		return EXIT_FAILURE;
+
 	bool do_benchmark = true; //false;
-	std::string fname = argv[1];
+
+	std::string fname="../../test/blobs1.png";
+	if(argc > 1)
+	{
+		fname=argv[1];
+	}
 	std::cout << "Loading: " << fname << std::endl;
-	stbi::Image bwimage(fname);
+	stbi::Image bwimage(fname,1);
+	bwimage.write("test.png");
 
 	auto segs = imtag::SegmentImage<uint16_t>(bwimage.height(), bwimage.width());
 	if(do_benchmark)
