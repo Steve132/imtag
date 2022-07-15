@@ -23,12 +23,12 @@ public:
 	int width() const { return width_; }
 	int height() const { return height_; }
 	int nchannels() const { return nchannels_; }
-	const uint8_t* data() const { return data_.data(); }
-	uint8_t* data() { return data_.data(); }
+	const uint8_t* data() const { return reinterpret_cast<const uint8_t*>(data_.data()); }
+	uint8_t* data() { return reinterpret_cast<uint8_t*>(data_.data()); }
 
 private:
 	int width_,height_,nchannels_;
-	std::vector<uint8_t> data_;
+	std::vector<uint64_t> data_;
 };
 
 }
