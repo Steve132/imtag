@@ -13,6 +13,11 @@ add_library(imtag
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
 	target_link_libraries(imtag PRIVATE OpenMP::OpenMP_CXX)
+else()
+    target_compile_options(imtag PRIVATE 
+        $<$<CONFIG:Release>:-Ofast -fopenmp-simd>
+	    $<$<CONFIG:RelWithDebInfo>:-fopenmp-simd>
+    )
 endif()
 
 target_include_directories(imtag PUBLIC

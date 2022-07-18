@@ -23,29 +23,7 @@ static inline bool is_all(uint64_t r)
     }
 }
 
-template<size_t W,bool mask>
-struct find_next_limit;
 
-template<size_t W,bool mask>
-struct find_next_nolimit{
-    static index_t impl(const uint8_t* buf,index_t N){
-        index_t i=0;
-        for(;(i+W)<N;){
-            index_t r=find_next_limit<W,mask>::impl(buf+i);
-            i+=r;
-            if(r < W) return i;
-        }
-        return find_next_nolimit<W/2,mask>::impl(buf+i,N-i);
-    }
-};
-template<size_t W,bool mask>
-struct find_next_limit{
-    static index_t impl(const uint8_t* buf){
-        index_t r=find_next_limit<W/2,mask>::impl(buf);
-        if(r < W) return r;
-        return W+find_next_limit<W/2,mask>::impl(buf+W);
-    }
-};
 
 template<bool mask>
 struct find_next_nolimit<8,mask>{
