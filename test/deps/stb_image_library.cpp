@@ -22,8 +22,11 @@ Image::Image(const std::string& fname, const int nchannels)
 	}
 	// copy from stb memory to vectory so that there's no destructor required
 	size_t size = width_*height_*nchannels_;
-	data_.resize(size);
-	memcpy(data_.data(), tmp, size);
+	data_.resize(size / sizeof(uint64_t));
+	std::cout << "data_: " << (uint64_t)data_.data() << std::endl;
+	// ensure data is aligned on uint64_t for align_64 in compress_scanlines:
+
+	memcpy(reinterpret_cast<uint8_t*>(data_.data()), tmp, size);
 	stbi_image_free(tmp);
 }
 
@@ -33,12 +36,12 @@ Image::Image(const int width, const int height, const int nchannels) :
 	nchannels_(nchannels == 0 ? 1 : nchannels)
 {
 	size_t size = width_*height_*nchannels_;
-	data_.resize(size);
+	data_.resize(size / sizeof(uint64_t));
 }
 
 void Image::fill(const uint8_t c0)
 {
-	std::fill(data_.begin(), data_.end(), c0);
+	std::fill(reinterpret_cast<uint8_t*>(data_.data()), reinterpret_cast<uint8_t*>(data_.data() + width_*height_*nchannels_), c0);
 }
 
 void Image::write(const std::string& fname) const
@@ -49,17 +52,17 @@ void Image::write(const std::string& fname) const
 
 	if(extension == ".png")
 	{
-		if(stbi_write_png(fname.c_str(), width_, height_, nchannels_, data_.data(), 0) == 0)
+		if(stbi_write_png(fname.c_str(), width_, height_, nchannels_, reinterpret_cast<const uint8_t*>(data_.data()), 0) == 0)
 			throw std::runtime_error("Could not write png " + fname);
 	}
 	else if(extension == ".bmp")
 	{
-		if(stbi_write_bmp(fname.c_str(), width_, height_, nchannels_, data_.data()) == 0)
+		if(stbi_write_bmp(fname.c_str(), width_, height_, nchannels_, reinterpret_cast<const uint8_t*>(data_.data())) == 0)
 			throw std::runtime_error("Could not write bmp " + fname);
 	}
 	else if(extension == ".jpg")
 	{
-		if(stbi_write_jpg(fname.c_str(), width_, height_, nchannels_, data_.data(), 0) == 0)
+		if(stbi_write_jpg(fname.c_str(), width_, height_, nchannels_, reinterpret_cast<const uint8_t*>(data_.data()), 0) == 0)
 			throw std::runtime_error("Could not write jpg " + fname);
 	}
 	else
@@ -70,7 +73,7 @@ void Image::draw_point(const uint16_t x, const uint16_t y, const uint8_t c0, con
 {
 	if((x >= width_) || (y >= height_))
 		return;
-	uint8_t* image_top_left = data_.data() + y*width_*nchannels_ + x*nchannels_;
+	uint8_t* image_top_left = reinterpret_cast<uint8_t*>(data_.data()) + y*width_*nchannels_ + x*nchannels_;
 	image_top_left[0] = c0;
 	if(nchannels_ >= 2)
 		image_top_left[1] = c1;
@@ -84,7 +87,7 @@ void Image::draw_horz_or_vert_line(const uint16_t x0, const uint16_t y0, const u
 		(x1 >= width_) || (y1 >= height_) )
 		return;
 
-	uint8_t* image_top_left = data_.data() + y0*width_*nchannels_ + x0*nchannels_;
+	uint8_t* image_top_left = reinterpret_cast<uint8_t*>(data_.data()) + y0*width_*nchannels_ + x0*nchannels_;
 	if(y0 == y1)
 	{
 		if((nchannels_ == 1) || (nchannels_ == 3 && (c0 == c1) && (c0 == c2)) || ((nchannels_ == 2) && (c0 == c1)))
