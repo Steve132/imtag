@@ -8,6 +8,10 @@ add_library(imtag
 	SegmentImageImpl.hpp
     SegmentImageImpl.cpp
     SegmentImageImpl_Scanline.cpp
+	avx2_scanline.hpp
+	naive_scanline.hpp
+	scanline_base.hpp
+	omp_scanline.hpp
 )
 
 find_package(OpenMP)

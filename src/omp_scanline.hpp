@@ -11,6 +11,7 @@ struct check_all {
     {
         if constexpr(mask){
             uint8_t r=0x00;
+			// SIMD parallelization, not multi-threaded.
             #pragma omp simd reduction(|:r)
             for (size_t i = 0 ; i < W ; i++) {
                 r |= a[i];
@@ -23,7 +24,7 @@ struct check_all {
             for (size_t i = 0 ; i < W ; i++) {
                 r &= a[i];
             }
-            return r==0;
+			return r!=0xFF; // r==0
         }
     }
 };

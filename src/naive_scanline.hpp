@@ -16,6 +16,7 @@ namespace naive{
     }
 }
 
+// TODO: verify it checks with unoptimized method until reaching aligned ptr for bitmask comparison.
 namespace naive_align64{
 	template<size_t W>
 	static index_t dynamic_alignof(const uint8_t* bimg){
