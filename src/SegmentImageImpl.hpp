@@ -1,3 +1,6 @@
+#ifndef SEGMENT_IMAGE_IMPL_HPP
+#define SEGMENT_IMAGE_IMPL_HPP
+
 #include "imtag.hpp"
 #include "disjoint_set.hpp"
 
@@ -45,3 +48,5 @@ public:
 };
 
 }
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef AVX2_SCANLINE_HPP
+#define AVX2_SCANLINE_HPP
+
 #include<cstdint>
 #include<cstdlib>
 #include "scanline_base.hpp"
@@ -5,18 +8,6 @@
 
 namespace avx2
 {
-
-template<bool mask>
-static inline bool is_all(__m128i r);
-
-template<bool mask>
-static inline bool is_all(__m256i r);
-
-template<bool mask>
-static inline bool is_all(__m256i r0,__m256i r1);
-
-template<bool mask>
-static inline bool is_all(__m256i r0,__m256i r1,__m256i r2,__m256i r3);
 
 template<bool mask>
 static inline bool is_all(__m128i r)
@@ -244,3 +235,5 @@ index_t find_next(const uint8_t* buf,index_t N){
 }
 
 }
+
+#endif
