@@ -1,9 +1,11 @@
 #include "SegmentImageImpl.hpp"
 
 
-#include "scanline_base.hpp"
+//#include "scanline_base.hpp"
 //#include "omp_scanline.hpp"
-#include "avx2_scanline.hpp"
+//#include "avx2_scanline.hpp"
+
+#include "scanlines/index.hpp"
 
 namespace scanline_impl=scanline_base;
 
