@@ -24,7 +24,7 @@ template<class label_t>
 void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivitySelection cs){
     if(cs == ConnectivitySelection::VERTICAL) throw std::runtime_error("VERTICAL IS NOT IMPLEMENTED");
 
-    compress_scanlines(binary_image,rows,columns,segments_by_row);
+	compress_scanlines(binary_image,rows,columns,segments_by_row);
 	size_t nsegments = 0;
 	for(const auto& seg_row : segments_by_row)
 		nsegments += seg_row.size();

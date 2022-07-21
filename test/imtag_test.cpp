@@ -34,7 +34,7 @@ int main(int argc,char** argv)
 	auto segs = imtag::SegmentImage<uint16_t>(bwimage.height(), bwimage.width());
 	if(do_benchmark)
 	{
-		size_t niters = 2000;
+		size_t niters = 1;
 		auto z = [&bwimage, &segs](){ segs.update(bwimage.data(), imtag::ConnectivitySelection::CROSS); };
 		//auto z = [&bwimage](){ auto segs = imtag::bwlabel<uint16_t>(bwimage.height(), bwimage.width(), bwimage.data()); };
 		benchmark(z, niters);

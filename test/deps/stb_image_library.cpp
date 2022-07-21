@@ -23,7 +23,6 @@ Image::Image(const std::string& fname, const int nchannels)
 	// copy from stb memory to vectory so that there's no destructor required
 	size_t size = width_*height_*nchannels_;
 	data_.resize(size / sizeof(uint64_t));
-	std::cout << "data_: " << (uint64_t)data_.data() << std::endl;
 	// ensure data is aligned on uint64_t for align_64 in compress_scanlines:
 
 	memcpy(reinterpret_cast<uint8_t*>(data_.data()), tmp, size);

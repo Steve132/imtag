@@ -20,13 +20,14 @@ struct find_next_limit;
 // No run-time recursion: just compile-time recursion on fixed width window sizes.
 template<size_t W,bool mask>
 struct find_next_nolimit{
-    static index_t impl(const uint8_t* buf,index_t N){
-        index_t M=N/W;
+	static index_t impl(const uint8_t* buf,index_t N){
+		index_t M=N/W;
         for(index_t i=0;i<M;i++){
-            index_t r=find_next_limit<W,mask>::impl(buf+i*M);
-            if(r < W) return i*M+r;
+			index_t r=find_next_limit<W,mask>::impl(buf+i*W);
+			if(r < W) return i*W+r;
         }
-        return M*W+find_next_nolimit<W/2,mask>::impl(buf+M*W,N-W*M);
+		const index_t MW = M*W;
+		return MW+find_next_nolimit<W/2,mask>::impl(buf+MW,N-MW);
     }
 };
 
@@ -37,7 +38,7 @@ struct find_next_nolimit{
 template<size_t W,bool mask>
 struct find_next_limit{
     static index_t impl(const uint8_t* buf){
-        if(check_all<W,!mask>::impl(buf)) return W;
+		if(check_all<W,!mask>::impl(buf)) return W;
         index_t r=find_next_limit<W/2,mask>::impl(buf);
         if(r < W/2) return r;
         return W/2+find_next_limit<W/2,mask>::impl(buf+W/2);
