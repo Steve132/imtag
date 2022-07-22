@@ -4,6 +4,7 @@
 #include<cstdint>
 #include<cstdlib>
 #include<arm_neon.h>
+#include "scanline_base.hpp"
 
 namespace neon
 {
