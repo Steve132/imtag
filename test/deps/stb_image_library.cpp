@@ -22,8 +22,7 @@ Image::Image(const std::string& fname, const int nchannels)
 	}
 	// copy from stb memory to vectory so that there's no destructor required
 	size_t size = width_*height_*nchannels_;
-	data_.resize(size / sizeof(uint64_t));
-	// ensure data is aligned on uint64_t for align_64 in compress_scanlines:
+	data_.resize(ceil(static_cast<float>(size) / sizeof(uint64_t)));
 
 	memcpy(reinterpret_cast<uint8_t*>(data_.data()), tmp, size);
 	stbi_image_free(tmp);
@@ -35,12 +34,13 @@ Image::Image(const int width, const int height, const int nchannels) :
 	nchannels_(nchannels == 0 ? 1 : nchannels)
 {
 	size_t size = width_*height_*nchannels_;
-	data_.resize(size / sizeof(uint64_t));
+	data_.resize(ceil(static_cast<float>(size) / sizeof(uint64_t)));
 }
 
 void Image::fill(const uint8_t c0)
 {
-	std::fill(reinterpret_cast<uint8_t*>(data_.data()), reinterpret_cast<uint8_t*>(data_.data() + width_*height_*nchannels_), c0);
+	uint8_t* data_u8ptr = reinterpret_cast<uint8_t*>(data_.data());
+	std::fill(data_u8ptr, data_u8ptr + width_*height_*nchannels_, c0);
 }
 
 void Image::write(const std::string& fname) const

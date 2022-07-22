@@ -89,7 +89,7 @@ int main(int argc,char** argv)
 	{
 		fname=argv[1];
 	}
-	std::cout << "Loading: " << fname << std::endl;
+	//std::cout << "Loading: " << fname << std::endl;
 	stbi::Image bwimage(fname,1);
 
 	auto segs = imtag::SegmentImage<uint16_t>(bwimage.height(), bwimage.width());
@@ -103,7 +103,6 @@ int main(int argc,char** argv)
 		std::cout << "CV_CC benchmark: ";
 		benchmark(z2, niters);
 	}
-
 	std::vector<int> labelImage = cvConnectedComponentsWithStats(bwimage.data(), bwimage.width(), bwimage.height(), 4, false);
 	compareLabelImage(labelImage, segs);
 

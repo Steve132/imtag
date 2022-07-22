@@ -46,6 +46,7 @@ int main(int argc,char** argv)
 	stbi::Image labelImage(bwimage.width(), bwimage.height(), 3);
 	labelImage.fill(0);
 	srand(100);
+	std::cout << "Drawing components" << std::endl;
 	for(const auto& component : segs.components())
 	{
 		// Draw component with random colors:
