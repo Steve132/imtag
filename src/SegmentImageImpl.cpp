@@ -69,6 +69,7 @@ template<class label_t>
 template<ConnectivitySelection cs>
 void SegmentImageImpl<label_t>::update_compiletime_dispatch_connectivity(const uint8_t* binary_image)
 {
+	// TODO: speckles and noise: optimize with pointer walk for previous and current row segments
 	for(size_t y = 1; y < segments_by_row.size(); y++)
 	{
 		// look above
