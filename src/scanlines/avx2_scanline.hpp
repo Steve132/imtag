@@ -8,39 +8,44 @@
 
 namespace avx2
 {
+// avx2: _mm256_and_si256, _mm256_or_si256 is_all(__m256i), _mm256_extracti128_si256 find_next(__m128i)
+// avx: _mm256_testc_si256, _mm256_set1_epi16, _mm256_setzero_si256 is_all(__m256i), _mm256_lddqu_si256 check_all<32+>
+// sse4.1: _mm_testc_si128 is_all(__m128i), _mm_extract_epi64 find_next(__m128i)
+// sse3: _mm_lddqu_si128 check_all<16>
+// sse2: _mm_setzero_si128, _mm_set1_epi16 is_all(__m128i)
 
 template<bool mask>
-static inline bool is_all(__m128i r)
+static inline bool is_all(const __m128i r)
 {
-    if constexpr(mask)
+	if constexpr(mask)
 	{
 		__m128i o=_mm_set1_epi16(-1);
 		return _mm_testc_si128(r,o);
-    }
-    else
+	}
+	else
 	{
 		__m128i z= _mm_setzero_si128();
 		return _mm_testc_si128(z,r);
-    }
+	}
 }
 
 template<bool mask>
-static inline bool is_all(__m256i r)
+static inline bool is_all(const __m256i r)
 {
-    if constexpr(mask)
+	if constexpr(mask)
 	{
 		__m256i o=_mm256_set1_epi16(-1);
 		return _mm256_testc_si256(r,o);
-    }
-    else
+	}
+	else
 	{
 		__m256i z= _mm256_setzero_si256();
 		return _mm256_testc_si256(z,r);
-    }
+	}
 }
 
 template<bool mask>
-static inline bool is_all(__m256i r1,__m256i r2)
+static inline bool is_all(const __m256i r1, const __m256i r2)
 {
 	if constexpr(mask)
 	{
@@ -54,25 +59,25 @@ static inline bool is_all(__m256i r1,__m256i r2)
 	}
 }
 template<bool mask>
-static inline bool is_all(__m256i r0,__m256i r1,__m256i r2,__m256i r3){
-    if constexpr(mask)
+static inline bool is_all(const __m256i r0, const __m256i r1, const __m256i r2, const __m256i r3){
+	if constexpr(mask)
 	{
 		__m256i t0=_mm256_and_si256(r0,r1);
-        __m256i t1=_mm256_and_si256(r2,r3);
-        __m256i t=_mm256_and_si256(t0,t1);    
+		__m256i t1=_mm256_and_si256(r2,r3);
+		__m256i t=_mm256_and_si256(t0,t1);
 		return is_all<mask>(t);
 	}
 	else
 	{
 		__m256i t0=_mm256_or_si256(r0,r1);
-        __m256i t1=_mm256_or_si256(r2,r3);
-        __m256i t=_mm256_or_si256(t0,t1);
+		__m256i t1=_mm256_or_si256(r2,r3);
+		__m256i t=_mm256_or_si256(t0,t1);
 		return is_all<mask>(t);
 	}
 }
 
 template<bool mask>
-static inline bool is_all(uint64_t r)
+static inline bool is_all(const uint64_t r)
 {
 	if constexpr(mask){
 		return r==0xFFFFFFFFFFFFFFFFULL;
@@ -83,7 +88,7 @@ static inline bool is_all(uint64_t r)
 }
 
 template<bool mask>
-static inline index_t find_next(uint64_t r){
+static inline index_t find_next(const uint64_t r){
 	if(is_all<!mask>(r)) return 8;
 	for(index_t i=0;i<8;i++){
 		static constexpr uint64_t TEST=mask ? 0x00 : 0xFF;
@@ -95,7 +100,7 @@ static inline index_t find_next(uint64_t r){
 }
 
 template<bool mask>
-static inline index_t find_next(__m128i r){
+static inline index_t find_next(const __m128i r){
 	if(is_all<!mask>(r)) return 16;
 	index_t i=find_next<mask>(_mm_extract_epi64(r,0));
 	if(i < 8) return i;
@@ -103,7 +108,7 @@ static inline index_t find_next(__m128i r){
 }
 
 template<bool mask>
-static inline index_t find_next(__m256i r){
+static inline index_t find_next(const __m256i r){
 	if(is_all<!mask>(r)) return 32;
 	index_t i=find_next<mask>(_mm256_extracti128_si256(r,0));
 	if(i < 16) return i;
@@ -111,7 +116,7 @@ static inline index_t find_next(__m256i r){
 };
 
 template<bool mask>
-static inline index_t find_next(__m256i r0,__m256i r1){
+static inline index_t find_next(const __m256i r0,const __m256i r1){
 	if(is_all<!mask>(r0,r1)) return 32;
 	index_t i=find_next<mask>(r0);
 	if(i < 32) return i;
@@ -119,7 +124,7 @@ static inline index_t find_next(__m256i r0,__m256i r1){
 };
 
 template<bool mask>
-static inline index_t find_next(__m256i r0,__m256i r1,__m256i r2,__m256i r3){
+static inline index_t find_next(const __m256i r0,const __m256i r1,const __m256i r2,const __m256i r3){
 	if(is_all<!mask>(r0,r1,r2,r3)) return 128; //TODO reuse intermediate results for and tests
 	index_t i=find_next<mask>(r0,r1);
 	if(i < 64) return i;
@@ -191,7 +196,7 @@ struct check_all {
 	}
 };
 
-#ifdef DEBUG_AVX2_FIND_NEXT
+#ifdef DEBUG_avx_FIND_NEXT
 template<bool mask>
 struct find_next_limit<16,mask>{
 	static index_t impl(const uint8_t* buf){
@@ -230,7 +235,7 @@ struct find_next_limit<128,mask>{
 #endif
 
 template<bool mask>
-index_t find_next(const uint8_t* buf,index_t N){
+index_t find_next(const uint8_t* buf,const index_t N){
 	return find_next_nolimit<128,mask>::impl(buf,N);
 }
 
