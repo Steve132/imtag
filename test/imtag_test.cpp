@@ -65,9 +65,8 @@ int main(int argc,char** argv)
 		if((center.first < labelImage.width()) && (center.second < labelImage.height()))
 			labelImage.draw_crosshair(center.first, center.second, 4, 255, 255, 255);
 	}
+	std::cout << "Writing labels image to labels.png." << std::endl;
 	labelImage.write("labels.png");
-	std::cout << "Writing bounding box image to bbs.png." << std::endl;
-	bwimage.write("bbs.png");
 
 	return EXIT_SUCCESS;
 }

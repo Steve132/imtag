@@ -11,8 +11,8 @@ void SegmentImageImpl<label_t>::rows_to_components(){
 	for(auto& component : components)
 		component.clear();
 	components.resize(M);
-	for(auto& scanline : segments_by_row){
-		for(auto& seg : scanline){
+	for(const auto& scanline : segments_by_row){
+		for(const auto& seg : scanline){
 			auto seg_copy=seg;
 			seg_copy.label=cc_nodes[seg.label];
 			components[seg_copy.label].push_back(seg_copy);

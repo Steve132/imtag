@@ -91,9 +91,10 @@ void draw(const Component<LabelType>& component, uint8_t* image, const size_t im
 	for(const auto& seg : component)
 	{
 		typename Segment<LabelType>::coord_t y = seg.row;
+		uint8_t* image_row = image + y*image_width*nchannels;
 		for(typename Segment<LabelType>::coord_t x = seg.column_start; x < seg.column_end; x++)
 		{
-			uint8_t* pixel = image + y*image_width*nchannels + x*nchannels;
+			uint8_t* pixel = image_row + x*nchannels;
 			pixel[0] = c0;
 			if(nchannels >= 2)
 				pixel[1] = c1;

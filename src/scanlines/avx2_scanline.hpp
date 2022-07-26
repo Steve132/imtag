@@ -13,13 +13,13 @@ template<bool mask>
 static inline bool is_all(__m128i r)
 {
     if constexpr(mask)
-    {
-        __m128i o=_mm_set1_epi16(-1);
+	{
+		__m128i o=_mm_set1_epi16(-1);
 		return _mm_testc_si128(r,o);
     }
     else
-    {
-        __m128i z= _mm_setzero_si128();
+	{
+		__m128i z= _mm_setzero_si128();
 		return _mm_testc_si128(z,r);
     }
 }
@@ -28,13 +28,13 @@ template<bool mask>
 static inline bool is_all(__m256i r)
 {
     if constexpr(mask)
-    {
-        __m256i o=_mm256_set1_epi16(-1);
+	{
+		__m256i o=_mm256_set1_epi16(-1);
 		return _mm256_testc_si256(r,o);
     }
     else
-    {
-        __m256i z= _mm256_setzero_si256();
+	{
+		__m256i z= _mm256_setzero_si256();
 		return _mm256_testc_si256(z,r);
     }
 }
