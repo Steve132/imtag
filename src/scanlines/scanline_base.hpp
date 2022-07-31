@@ -40,7 +40,7 @@ template<size_t W,bool mask>
 struct find_next_limit{
     static index_t impl(const uint8_t* buf){
 		if(check_all<W,!mask>::impl(buf)) return W;
-        index_t r=find_next_limit<W/2,mask>::impl(buf);
+		index_t r=find_next_limit<W/2,mask>::impl(buf);
 		index_t halfW=W/2;
 		if(r < halfW) return r;
 		return halfW+find_next_limit<W/2,mask>::impl(buf+halfW);

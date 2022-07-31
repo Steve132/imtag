@@ -131,6 +131,15 @@ static inline index_t find_next(const __m256i r0,const __m256i r1,const __m256i 
 	return 64+find_next<mask>(r2,r3);
 };
 
+// Experiments suggest prefetch makes no difference for performance.
+static inline void prefetch(const uint8_t* b)
+{
+	//#define PREFETCH
+	#ifdef PREFETCH
+	_mm_prefetch(b, _MM_HINT_T0);
+	#endif
+}
+
 }
 
 namespace scanline_base{
@@ -139,6 +148,7 @@ template<bool mask>
 struct check_all<16, mask> {
 	static bool impl(const uint8_t* a)
 	{
+		avx2::prefetch(a);
 		__m128i r=_mm_lddqu_si128((const __m128i*)a);
 		return avx2::is_all<mask>(r);
 	}
@@ -148,6 +158,7 @@ template<bool mask>
 struct check_all<32, mask> {
 	static bool impl(const uint8_t* a)
 	{
+		avx2::prefetch(a);
 		__m256i r=_mm256_lddqu_si256((const __m256i*)a);
 		return avx2::is_all<mask>(r);
 	}
@@ -157,6 +168,7 @@ template<bool mask>
 struct check_all<64, mask> {
 	static bool impl(const uint8_t* a)
 	{
+		avx2::prefetch(a);
 		__m256i r0=_mm256_lddqu_si256((const __m256i*)a);
 		__m256i r1=_mm256_lddqu_si256((const __m256i*)(a+32));
 		return avx2::is_all<mask>(r0,r1);
@@ -167,6 +179,7 @@ template<bool mask>
 struct check_all<128, mask> {
 	static bool impl(const uint8_t* a)
 	{
+		avx2::prefetch(a);
 		__m256i r0=_mm256_lddqu_si256((const __m256i*)a);
 		__m256i r1=_mm256_lddqu_si256((const __m256i*)(a+32));
 		__m256i r2=_mm256_lddqu_si256((const __m256i*)(a+64));
@@ -234,9 +247,10 @@ struct find_next_limit<128,mask>{
 };
 #endif
 
+// 16 is best
 template<bool mask>
 index_t find_next(const uint8_t* buf,const index_t N){
-	return find_next_nolimit<128,mask>::impl(buf,N);
+	return find_next_nolimit<16,mask>::impl(buf,N);
 }
 
 }
