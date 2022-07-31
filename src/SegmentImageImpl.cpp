@@ -74,22 +74,27 @@ void SegmentImageImpl<label_t>::update_compiletime_dispatch_connectivity(const u
 	{
 		// look above
 		auto& prev_segments = segments_by_row[y-1];
+		if(!prev_segments.size())
+			continue;
 		auto& segments = segments_by_row[y];
-		for(auto& segment : segments)
+		typename std::vector<Segment<label_t>>::iterator segment = segments.begin(), prev_segment = prev_segments.begin();
+		while((segment != segments.end()) && (prev_segment != prev_segments.end()))
 		{
-			for(auto& prev_segment : prev_segments)
+			if constexpr (cs == ConnectivitySelection::EIGHT_WAY)
 			{
-				if constexpr (cs == ConnectivitySelection::EIGHT_WAY)
-				{
-					if(overlap_diag(segment,prev_segment))
-						ds.unite(segment.label, prev_segment.label);
-				}
-				else
-				{
-					if(overlap(segment,prev_segment))
-						ds.unite(segment.label, prev_segment.label);
-				}
+				if(overlap_diag(*segment,*prev_segment))
+					ds.unite(segment->label, prev_segment->label);
 			}
+			else
+			{
+				if(overlap(*segment,*prev_segment))
+					ds.unite(segment->label, prev_segment->label);
+			}
+
+			if(prev_segment->column_end < segment->column_end)
+				prev_segment++;
+			else
+				segment++;
 		}
 	}
 }
