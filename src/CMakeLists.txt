@@ -10,6 +10,7 @@ add_library(imtag
     SegmentImageImpl_Scanline.cpp
 
 	scanlines/avx2_scanline.hpp
+	scanlines/sse4_scanline.hpp
 	scanlines/sve_scanline.hpp # if ARMv8.2 or higher
 	scanlines/naive_scanline.hpp
 	scanlines/scanline_base.hpp

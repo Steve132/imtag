@@ -5,6 +5,8 @@
 #include "neon_scanline.hpp"
 #elif defined(__AVX2__)
 #include "avx2_scanline.hpp"
+#elif defined(__SSE3__)
+#include "sse4_scanline.hpp"
 #elif defined(_OPENMP)
 #include "omp_scanline.hpp"
 #else
