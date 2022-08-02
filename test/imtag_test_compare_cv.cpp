@@ -80,6 +80,32 @@ void compareLabelImage(const std::vector<int>& labelImage, const imtag::SegmentI
 	std::cout << "disagreeing pixels count: " << disagreement << std::endl;
 }
 
+#include <random>
+static void addNoise(uint8_t* img, const size_t width, const size_t height)
+{
+	std::default_random_engine generator;
+	std::normal_distribution<double> dist(0, .1);
+	for(size_t y = 1; y < height-1; y++)
+	{
+		uint8_t* img_row = img + y*width;
+		for(size_t x = 1; x < width-1; x++)
+		{
+			if(img_row[x])
+				continue;
+			img_row[x] = 255 * (dist(generator) > 0.35);
+
+			// Optionally, have cross over set to noise to ensure a component
+			if(img_row[x])
+			{
+				img_row[x-1] = 255;
+				img_row[x+1] = 255;
+				*(img + (y-1)*width + x) = 255;
+				*(img + (y+1)*width + x) = 255;
+			}
+		}
+	}
+}
+
 int main(int argc,char** argv)
 {
 	bool do_benchmark = true; //false;
@@ -91,6 +117,8 @@ int main(int argc,char** argv)
 	}
 	//std::cout << "Loading: " << fname << std::endl;
 	stbi::Image bwimage(fname,1);
+	addNoise(bwimage.data(), bwimage.width(), bwimage.height());
+	bwimage.write("noise.png");
 
 	auto segs = imtag::SegmentImage<uint16_t>(bwimage.height(), bwimage.width());
 	if(do_benchmark)

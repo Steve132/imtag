@@ -88,22 +88,20 @@ void SegmentImageImpl<label_t>::update_connectivity()
 	{
 		// look above
 		auto& prev_segments = segments_by_row[y-1];
+		if(!prev_segments.size())
+			continue;
 		auto& segments = segments_by_row[y];
-
-		auto piter=prev_segments.begin();
-		auto pend=prev_segments.end();
-		//auto siter=segments.begin();
-
-		for(auto& seg : segments){
-			for(;piter != pend;++piter){
-				if(overlap<cs>(seg,*piter)){
-					break;
-				}
+		typename std::vector<Segment<label_t>>::iterator segment = segments.begin(), prev_segment = prev_segments.begin();
+		while((segment != segments.end()) && (prev_segment != prev_segments.end()))
+		{
+			if(overlap<cs>(*segment,*prev_segment)){
+				ds.unite(segment->label, prev_segment->label);
 			}
-			for(auto cpiter=piter;cpiter != pend && overlap<cs>(seg,*cpiter);++cpiter){
-				ds.unite(seg.label,cpiter->label);
-				piter=cpiter;
-			}
+
+			if(prev_segment->column_end < segment->column_end)
+				prev_segment++;
+			else
+				segment++;
 		}
 		
 	}
