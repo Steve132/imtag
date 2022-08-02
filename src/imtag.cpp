@@ -66,6 +66,18 @@ const typename SegmentImage<label_t>::components_t& SegmentImage<label_t>::compo
 	return impl->components;
 }
 
+template<class label_t>
+void SegmentImage<label_t>::to_label_image(label_t* image) const
+{
+	impl->to_label_image(image);
+}
+
+template<class label_t>
+void SegmentImage<label_t>::to_mask_image(uint8_t* image) const
+{
+	impl->to_mask_image(image);
+}
+
 template class SegmentImage<uint8_t>;
 template class SegmentImage<uint16_t>;
 template class SegmentImage<uint32_t>;

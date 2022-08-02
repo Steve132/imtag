@@ -85,6 +85,9 @@ public:
     void update(const uint8_t* boolean_image, const ConnectivitySelection cs = ConnectivitySelection::CROSS);
     void update_connectivity(const ConnectivitySelection cs = ConnectivitySelection::CROSS);
 
+	void to_label_image(label_t* image) const;
+	void to_mask_image(uint8_t* image) const;
+
     SegmentImage(const SegmentImage&);
     SegmentImage& operator=(const SegmentImage&);
     SegmentImage(SegmentImage&&);
