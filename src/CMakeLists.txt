@@ -8,6 +8,7 @@ add_library(imtag
 	SegmentImageImpl.hpp
     SegmentImageImpl.cpp
     SegmentImageImpl_Scanline.cpp
+	morphology.cpp
 
 	scanlines/avx2_scanline.hpp
 	scanlines/sse4_scanline.hpp

@@ -25,10 +25,10 @@ SegmentImageImpl<label_t> SegmentImageImpl<label_t>::invert(const SegmentImageIm
         }
         for(;cur_seg != src_row.end();++cur_seg){
             dst_row.emplace_back(r,curcol,cur_seg->column_start,cur_label++);
-            cur_col=cur_seg->column_end;
+            curcol=cur_seg->column_end;
         }
-        if(cur_col=a.columns){
-            dst_row.emplace_back(r,cur_col,a.columns,cur_label++);
+        if(curcol==a.columns){
+            dst_row.emplace_back(r,curcol,a.columns,cur_label++);
         }
     }
     out.update_connectivity<ConnectivitySelection::CROSS>();
@@ -47,9 +47,12 @@ SegmentImageImpl<label_t> SegmentImageImpl<label_t>::label_holes(const SegmentIm
         auto& dst_row=inv_a.segments_by_row[r];
         auto& src_row=a.segments_by_row[r];
         dst_row.insert(dst_row.end(),src_row.begin(),src_row.end());
-        using seg_t=typename SegmentImageImpl<label_t>::seg_t
-        std::sort(dst_row.begin(),dst_row.end(),[](const SegmentImageImpl<label_t>))
+        using seg_t=typename SegmentImageImpl<label_t>::seg_t;
+        std::sort(dst_row.begin(),dst_row.end(),[](const seg_t& a,const seg_t& b){
+            return a.column_start < b.column_start;
+        });
     }
+    return inv_a;
 }
 
 template class SegmentImageImpl<uint8_t>;
