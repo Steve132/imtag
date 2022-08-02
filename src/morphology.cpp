@@ -37,12 +37,36 @@ SegmentImageImpl<label_t> SegmentImageImpl<label_t>::invert(const SegmentImageIm
 
 template<class label_t>
 SegmentImageImpl<label_t> SegmentImageImpl<label_t>::dilate(const SegmentImageImpl& a,int mx,int my){
-
+    auto& src_rows=a.segments_by_row;
+    SegmentImageImpl<label_t> out(a.rows,a.columns);
+    auto& dst_rows=out.segments_by_row;
+    for(size_t r=0;r<a.rows;r++){
+        auto& src_row=src_rows[r];
+        size_t rd_lower=r < my ? 0 : (r-my);
+        size_t rd_upper=r+my < a.rows ? r+my : a.rows;
+        for(size_t rd=rd_lower; rd < rd_upper; rd++){
+            auto& dst_row=dst_rows[rd];
+            dst_row.insert(dst_row.end(),src_row.begin(),src_row.end());
+        }
+    }
+    //#pragma omp parallel for
+    for(size_t r=0;r<a.rows;r++){
+        auto& dst_row=dst_rows[r];
+        for(auto& seg : dst_row){
+            seg.row=r;
+            seg.column_start=seg.column_start < mx ? 0 : (seg.column_start-mx);
+            seg.column_end=seg.column_end+mx < a.columns ? seg.column_end+mx : a.columns;  
+        }
+        //TODO rectify row
+    }
+    //update connectivity
+    return out;
 }
-
+/*
 template<class label_t>
 SegmentImageImpl<label_t> SegmentImageImpl<label_t>::label_holes(const SegmentImageImpl& a){
     SegmentImageImpl<label_t> inv_a=SegmentImageImpl<label_t>::invert(a);
+    size_t nlabels_orig=a.components.size();
     for(size_t r=0;r<a.rows;r++){
         auto& dst_row=inv_a.segments_by_row[r];
         auto& src_row=a.segments_by_row[r];
@@ -53,7 +77,7 @@ SegmentImageImpl<label_t> SegmentImageImpl<label_t>::label_holes(const SegmentIm
         });
     }
     return inv_a;
-}
+}*/
 
 template class SegmentImageImpl<uint8_t>;
 template class SegmentImageImpl<uint16_t>;
