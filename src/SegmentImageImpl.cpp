@@ -55,20 +55,20 @@ struct overlap_result_t{
 template<ConnectivitySelection cs,class label_t>
 static inline overlap_result_t overlap2(const Segment<label_t>& a,const Segment<label_t>& b){
 	if constexpr (cs == ConnectivitySelection::EIGHT_WAY){
-		return overlap_result_t{(a.column_start <= b.column_end),(b.column_start <= a.column_end)};
+		return overlap_result_t{(a.column_begin <= b.column_end),(b.column_begin <= a.column_end)};
 	}
 	else{
-		return overlap_result_t{(a.column_start < b.column_end),(b.column_start < a.column_end)};
+		return overlap_result_t{(a.column_begin < b.column_end),(b.column_begin < a.column_end)};
 	}
 }
 
 template<ConnectivitySelection cs,class label_t>
 static inline bool overlap(const Segment<label_t>& a,const Segment<label_t>& b){
 	if constexpr (cs == ConnectivitySelection::EIGHT_WAY){
-		return (a.column_start <= b.column_end) && (b.column_start <= a.column_end);
+		return (a.column_begin <= b.column_end) && (b.column_begin <= a.column_end);
 	}
 	else{
-		return (a.column_start < b.column_end) && (b.column_start < a.column_end);
+		return (a.column_begin < b.column_end) && (b.column_begin < a.column_end);
 	}
 }
 

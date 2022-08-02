@@ -19,16 +19,16 @@ public:
     using coord_t=uint16_t;
 
     coord_t row;
-	coord_t column_start;
+	coord_t column_begin;
 	coord_t column_end;  //one past (exclusive)
 	label_t label;
-	Segment() : row(0),column_start(0),column_end(0),label(0) {}
-	Segment(const coord_t row_,const coord_t column_start_, const coord_t column_end_, const label_t label_): 
-        row(row_),column_start(column_start_),column_end(column_end_),label(label_) {}
+	Segment() : row(0),column_begin(0),column_end(0),label(0) {}
+	Segment(const coord_t row_,const coord_t column_begin_, const coord_t column_end_, const label_t label_):
+		row(row_),column_begin(column_begin_),column_end(column_end_),label(label_) {}
 
 	friend std::ostream &operator<<(std::ostream &output, const Segment& seg)
 	{
-		output << seg.row << ": " << seg.column_start << ", " << seg.column_end;
+		output << seg.row << ": " << seg.column_begin << ", " << seg.column_end;
 		return output;
 	}
 };

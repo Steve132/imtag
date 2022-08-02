@@ -48,8 +48,8 @@ BoundingBox bounding_box(const Component<LabelType>& component)
 			bb.top = seg.row;
 		if(bb.bottom < seg.row)
 			bb.bottom = seg.row;
-		if(bb.left > seg.column_start)
-			bb.left = seg.column_start;
+		if(bb.left > seg.column_begin)
+			bb.left = seg.column_begin;
 		if(bb.right < seg.column_end)
 			bb.right = seg.column_end;
 	}
@@ -61,7 +61,7 @@ size_t npixels(const Component<LabelType>& component)
 {
 	size_t sum = 0;
 	for(const auto& seg : component)
-		sum += seg.column_end - seg.column_start;
+		sum += seg.column_end - seg.column_begin;
 	return sum;
 }
 
@@ -74,8 +74,8 @@ std::pair<typename Segment<LabelType>::coord_t, typename Segment<LabelType>::coo
 
 	for(const Segment<LabelType>& seg : component){
 		// Closed form solution for sequence of for(x = col start to col end) tx += x:
-		size_t tx=((seg.column_end-1)*seg.column_end) - ((seg.column_start-1)*seg.column_start);
-		size_t n=seg.column_end-seg.column_start;
+		size_t tx=((seg.column_end-1)*seg.column_end) - ((seg.column_begin-1)*seg.column_begin);
+		size_t n=seg.column_end-seg.column_begin;
 		sx+=tx;
 		sy+=n*seg.row;
 		t+=n;
@@ -92,7 +92,7 @@ void draw(const Component<LabelType>& component, uint8_t* image, const size_t im
 	{
 		typename Segment<LabelType>::coord_t y = seg.row;
 		uint8_t* image_row = image + y*image_width*nchannels;
-		for(typename Segment<LabelType>::coord_t x = seg.column_start; x < seg.column_end; x++)
+		for(typename Segment<LabelType>::coord_t x = seg.column_begin; x < seg.column_end; x++)
 		{
 			uint8_t* pixel = image_row + x*nchannels;
 			pixel[0] = c0;

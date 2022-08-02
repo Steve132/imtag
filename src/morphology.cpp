@@ -18,9 +18,9 @@ void to_label_image(pixel_t* image, const size_t rows, const size_t columns, con
 		for(const auto& segment : segments)
 		{
 			if constexpr (maskmode)
-				std::fill_n(image_row + segment.column_start, segment.column_end - segment.column_start, 0xFF);
+				std::fill_n(image_row + segment.column_begin, segment.column_end - segment.column_begin, 0xFF);
 			else
-				std::fill_n(image_row + segment.column_start, segment.column_end - segment.column_start, segment.label);
+				std::fill_n(image_row + segment.column_begin, segment.column_end - segment.column_begin, segment.label);
 		}
 	}
 }
@@ -54,13 +54,13 @@ SegmentImageImpl<label_t> SegmentImageImpl<label_t>::invert(const SegmentImageIm
         }
         uint_fast16_t curcol=0;
         auto cur_seg=src_row.begin();
-        if(cur_seg->column_start==0){
+		if(cur_seg->column_begin==0){
             curcol=cur_seg->column_end;
             if(cur_seg->column_end==a.columns) continue;
             ++cur_seg;
         }
         for(;cur_seg != src_row.end();++cur_seg){
-            dst_row.emplace_back(r,curcol,cur_seg->column_start,cur_label++);
+			dst_row.emplace_back(r,curcol,cur_seg->column_begin,cur_label++);
             curcol=cur_seg->column_end;
         }
         if(curcol==a.columns){
@@ -90,7 +90,7 @@ SegmentImageImpl<label_t> SegmentImageImpl<label_t>::dilate(const SegmentImageIm
         auto& dst_row=dst_rows[r];
         for(auto& seg : dst_row){
             seg.row=r;
-            seg.column_start=seg.column_start < mx ? 0 : (seg.column_start-mx);
+			seg.column_begin=seg.column_begin < mx ? 0 : (seg.column_begin-mx);
             seg.column_end=seg.column_end+mx < a.columns ? seg.column_end+mx : a.columns;  
         }
         //TODO rectify row
@@ -109,7 +109,7 @@ SegmentImageImpl<label_t> SegmentImageImpl<label_t>::label_holes(const SegmentIm
         dst_row.insert(dst_row.end(),src_row.begin(),src_row.end());
         using seg_t=typename SegmentImageImpl<label_t>::seg_t;
         std::sort(dst_row.begin(),dst_row.end(),[](const seg_t& a,const seg_t& b){
-            return a.column_start < b.column_start;
+			return a.column_begin < b.column_begin;
         });
     }
     return inv_a;

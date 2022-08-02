@@ -28,7 +28,7 @@ void compareLabelImage(const std::vector<int>& labelImage, const imtag::SegmentI
 	validLabels.push_back(0); // Background component
 	for(const auto& component : segs.components())
 	{
-		int cvLabel = labelImage[component[0].row * segs.width() + component[0].column_start];
+		int cvLabel = labelImage[component[0].row * segs.width() + component[0].column_begin];
 		//imtagToCVLabel[cvLabel] = component.label;
 		validLabels.push_back(cvLabel);
 		cvComponentSizes[cvLabel] = 0;
@@ -59,17 +59,17 @@ void compareLabelImage(const std::vector<int>& labelImage, const imtag::SegmentI
 	int disagreement = 0;
 	for(const auto& component : segs.components())
 	{
-		int cvLabel = labelImage[component[0].row * segs.width() + component[0].column_start];
+		int cvLabel = labelImage[component[0].row * segs.width() + component[0].column_begin];
 		int componentSize = 0;
 		for(const auto& seg : component)
 		{
-			componentSize += seg.column_end - seg.column_start;
+			componentSize += seg.column_end - seg.column_begin;
 
 			// Get pixels where component is too big:
 			/*
-			for(int x = seg.column_start; x < seg.column_end; x++)
+			for(int x = seg.column_begin; x < seg.column_end; x++)
 			{
-				if(labelImage[component[0].row * segs.width() + component[0].column_start] != cvLabel)
+				if(labelImage[component[0].row * segs.width() + component[0].column_begin] != cvLabel)
 					disagreement++;
 			}
 			*/
