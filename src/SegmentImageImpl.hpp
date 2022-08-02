@@ -39,6 +39,8 @@ public:
 	template<ConnectivitySelection cs>
 	void update_connectivity();
 
+	void to_label_image(label_t* image) const;
+	void to_mask_image(uint8_t* image) const;
 
     static SegmentImageImpl invert(const SegmentImageImpl& a);
     static SegmentImageImpl dilate(const SegmentImageImpl& a,int mx,int my);
