@@ -30,7 +30,7 @@ public:
 
     SegmentImageImpl()=default;
 	SegmentImageImpl(size_t rows_,size_t cols_) :
-		rows(rows_),columns(cols_){}
+		rows(rows_),columns(cols_),segments_by_row(rows_){}
 
     void update(const uint8_t* binary_image,ConnectivitySelection cs);
     void update_connectivity(ConnectivitySelection cs);

@@ -23,11 +23,7 @@ void SegmentImageImpl<label_t>::rows_to_components(){
 template<class label_t>
 void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivitySelection cs){
    	compress_scanlines(binary_image,rows,columns,segments_by_row);
-	size_t nsegments = 0;
-	for(const auto& seg_row : segments_by_row)
-		nsegments += seg_row.size();
-	ds.reset(nsegments);
-
+	
 	update_connectivity(cs);
 }
 
@@ -83,6 +79,11 @@ void SegmentImageImpl<label_t>::update_connectivity()
 	if constexpr(cs==ConnectivitySelection::HORIZONTAL){
 		return;
 	}
+
+	size_t nsegments = 0;
+	for(const auto& seg_row : segments_by_row)
+		nsegments += seg_row.size(); //Todo should this techinically actually be the max label because of potentially nonlinear labeling?
+	ds.reset(nsegments);
 	// TODO: speckles and noise: optimize with pointer walk for previous and current row segments
 	for(size_t y = 1; y < segments_by_row.size(); y++)
 	{
