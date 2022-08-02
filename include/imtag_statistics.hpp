@@ -42,15 +42,15 @@ template<class LabelType>
 BoundingBox bounding_box(const Component<LabelType>& component)
 {
 	BoundingBox bb;
+	if(!component.size())
+		return bb;
+	bb.top = component[0].row;
+	bb.bottom = component[component.size() - 1].row + 1;
 	for(const auto& seg : component)
 	{
-		if(bb.top > seg.row)
-			bb.top = seg.row;
-		if(bb.bottom < seg.row)
-			bb.bottom = seg.row;
-		if(bb.left > seg.column_begin)
+		if(seg.column_begin < bb.left)
 			bb.left = seg.column_begin;
-		if(bb.right < seg.column_end)
+		if(seg.column_end > bb.right)
 			bb.right = seg.column_end;
 	}
 	return bb;
