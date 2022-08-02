@@ -117,13 +117,13 @@ int main(int argc,char** argv)
 	}
 	//std::cout << "Loading: " << fname << std::endl;
 	stbi::Image bwimage(fname,1);
-	addNoise(bwimage.data(), bwimage.width(), bwimage.height());
-	bwimage.write("noise.png");
+	//addNoise(bwimage.data(), bwimage.width(), bwimage.height());
+	//bwimage.write("noise.png");
 
 	auto segs = imtag::SegmentImage<uint16_t>(bwimage.height(), bwimage.width());
 	if(do_benchmark)
 	{
-		size_t niters = 10;
+		size_t niters = 25000;
 		auto z = [&bwimage, &segs](){ segs.update(bwimage.data(), imtag::ConnectivitySelection::CROSS); };
 		auto z2 = [&bwimage](){ auto segs = cvConnectedComponentsWithStats(bwimage.data(), bwimage.width(), bwimage.height(), 4); };
 		std::cout << "Imtag benchmark: ";
