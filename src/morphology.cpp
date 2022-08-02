@@ -5,7 +5,7 @@ namespace imtag{
 
 namespace detail
 {
-template<class pixel_t,class label_t>
+template<class pixel_t,class label_t,bool maskmode>
 void to_label_image(pixel_t* image, const size_t rows, const size_t columns, const std::vector<std::vector<typename SegmentImageImpl<label_t>::seg_t>>& segments_by_row)
 {
 	// TODO: should this be assumed to be 0 initialized?  Could it be faster?
@@ -17,10 +17,10 @@ void to_label_image(pixel_t* image, const size_t rows, const size_t columns, con
 		const auto& segments = segments_by_row[y];
 		for(const auto& segment : segments)
 		{
-			if constexpr (sizeof(pixel_t) == sizeof(label_t))
-				std::fill_n(image_row + segment.column_start, segment.column_end - segment.column_start, segment.label);
-			else
+			if constexpr (maskmode)
 				std::fill_n(image_row + segment.column_start, segment.column_end - segment.column_start, 0xFF);
+			else
+				std::fill_n(image_row + segment.column_start, segment.column_end - segment.column_start, segment.label);
 		}
 	}
 }
@@ -29,13 +29,13 @@ void to_label_image(pixel_t* image, const size_t rows, const size_t columns, con
 template<class label_t>
 void SegmentImageImpl<label_t>::to_label_image(label_t* image) const
 {
-	detail::to_label_image<label_t, label_t>(image, rows, columns, segments_by_row);
+	detail::to_label_image<label_t, label_t,false>(image, rows, columns, segments_by_row);
 }
 
 template<class label_t>
 void SegmentImageImpl<label_t>::to_mask_image(uint8_t* image) const
 {
-	detail::to_label_image<uint8_t, label_t>(image, rows, columns, segments_by_row);
+	detail::to_label_image<uint8_t, label_t,true>(image, rows, columns, segments_by_row);
 }
 
 template<class label_t>
