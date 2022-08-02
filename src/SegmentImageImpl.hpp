@@ -33,19 +33,19 @@ public:
 		rows(rows_),columns(cols_){}
 
     void update(const uint8_t* binary_image,ConnectivitySelection cs);
+    void update_connectivity(ConnectivitySelection cs);
     void rows_to_components();
 
 	template<ConnectivitySelection cs>
-	void update_compiletime_dispatch_connectivity(const uint8_t* binary_image);
-
-    void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::CROSS>);
-    void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::HORIZONTAL>);
-    void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::VERTICAL>);
-    void update_compiletime_dispatch(const uint8_t* binary_image,cs_tag<ConnectivitySelection::EIGHT_WAY>);
+	void update_connectivity();
 
 
-    
+    static SegmentImageImpl invert(const SegmentImageImpl& a);
+    static SegmentImageImpl dilate(const SegmentImageImpl& a,int mx,int my);
+    static SegmentImageImpl label_holes(const SegmentImageImpl& a);
 };
+
+
 
 }
 

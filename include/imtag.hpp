@@ -44,7 +44,7 @@ struct Component: public std::vector<Segment<LabelType>>{
 
 enum class ConnectivitySelection{
     HORIZONTAL,
-    VERTICAL, //this is interesting.
+    //VERTICAL, //this is interesting.
     CROSS,
     EIGHT_WAY
 };
@@ -71,13 +71,19 @@ public:
     size_t rows() const { return m_rows; }
     size_t columns() const { return m_columns; }
     size_t size() const { return m_rows*m_columns; }
+
 	components_t& components();
 	const components_t& components() const;
+
+    std::vector<std::vector<segment_t>>& segments_by_row();
+    const std::vector<std::vector<segment_t>>& segments_by_row() const;
+
 
     SegmentImage(size_t rows,size_t columns);
 
     // Perform connected components on boolean image
     void update(const uint8_t* boolean_image, const ConnectivitySelection cs = ConnectivitySelection::CROSS);
+    void update_connectivity(const ConnectivitySelection cs = ConnectivitySelection::CROSS);
 
     SegmentImage(const SegmentImage&);
     SegmentImage& operator=(const SegmentImage&);

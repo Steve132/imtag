@@ -22,101 +22,97 @@ void SegmentImageImpl<label_t>::rows_to_components(){
 
 template<class label_t>
 void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivitySelection cs){
-    if(cs == ConnectivitySelection::VERTICAL) throw std::runtime_error("VERTICAL IS NOT IMPLEMENTED");
-
-	compress_scanlines(binary_image,rows,columns,segments_by_row);
+   	compress_scanlines(binary_image,rows,columns,segments_by_row);
 	size_t nsegments = 0;
 	for(const auto& seg_row : segments_by_row)
 		nsegments += seg_row.size();
 	ds.reset(nsegments);
 
-    switch(cs){
+	update_connectivity(cs);
+}
+
+template<class label_t>
+void SegmentImageImpl<label_t>::update_connectivity(ConnectivitySelection cs){
+	switch(cs){
         case ConnectivitySelection::HORIZONTAL:
-            update_compiletime_dispatch(binary_image,cs_tag<ConnectivitySelection::HORIZONTAL>{});
+            update_connectivity<ConnectivitySelection::HORIZONTAL>();
             break;
         case ConnectivitySelection::CROSS:
-            update_compiletime_dispatch(binary_image,cs_tag<ConnectivitySelection::CROSS>{});
+            update_connectivity<ConnectivitySelection::CROSS>();
             break;
-        case ConnectivitySelection::VERTICAL:
-            update_compiletime_dispatch(binary_image,cs_tag<ConnectivitySelection::VERTICAL>{});
-            break;
+       // case ConnectivitySelection::VERTICAL:
+        //    update_compiletime_dispatch(cs_tag<ConnectivitySelection::VERTICAL>{});
+        //    break;
         case ConnectivitySelection::EIGHT_WAY:
-            update_compiletime_dispatch(binary_image,cs_tag<ConnectivitySelection::EIGHT_WAY>{});
+            update_connectivity<ConnectivitySelection::EIGHT_WAY>();
             break;
-    }
+    };
+
 	rows_to_components();
 }
 
-template<class label_t>
-void SegmentImageImpl<label_t>::update_compiletime_dispatch
-(const uint8_t* binary_image,cs_tag<ConnectivitySelection::HORIZONTAL>)
-{
-	// Default.  Do not union at all.
+struct overlap_result_t{
+	bool asLbe;
+	bool bsLae;
+};
+
+template<ConnectivitySelection cs,class label_t>
+static inline overlap_result_t overlap2(const Segment<label_t>& a,const Segment<label_t>& b){
+	if constexpr (cs == ConnectivitySelection::EIGHT_WAY){
+		return overlap_result_t{(a.column_start <= b.column_end),(b.column_start <= a.column_end)};
+	}
+	else{
+		return overlap_result_t{(a.column_start < b.column_end),(b.column_start < a.column_end)};
+	}
 }
 
-template<class label_t>
+template<ConnectivitySelection cs,class label_t>
 static inline bool overlap(const Segment<label_t>& a,const Segment<label_t>& b){
-	return (a.column_start < b.column_end) && (b.column_start < a.column_end);
+	if constexpr (cs == ConnectivitySelection::EIGHT_WAY){
+		return (a.column_start <= b.column_end) && (b.column_start <= a.column_end);
+	}
+	else{
+		return (a.column_start < b.column_end) && (b.column_start < a.column_end);
+	}
 }
-template<class label_t>
-static inline bool overlap_diag(const Segment<label_t>& a,const Segment<label_t>& b) {
-
-    return (a.column_start <= b.column_end) && (b.column_start <= a.column_end);
-}
-
 
 template<class label_t>
 template<ConnectivitySelection cs>
-void SegmentImageImpl<label_t>::update_compiletime_dispatch_connectivity(const uint8_t* binary_image)
+void SegmentImageImpl<label_t>::update_connectivity()
 {
+	if constexpr(cs==ConnectivitySelection::HORIZONTAL){
+		return;
+	}
 	// TODO: speckles and noise: optimize with pointer walk for previous and current row segments
 	for(size_t y = 1; y < segments_by_row.size(); y++)
 	{
 		// look above
 		auto& prev_segments = segments_by_row[y-1];
 		auto& segments = segments_by_row[y];
-		for(auto& segment : segments)
-		{
-			for(auto& prev_segment : prev_segments)
-			{
-				if constexpr (cs == ConnectivitySelection::EIGHT_WAY)
-				{
-					if(overlap_diag(segment,prev_segment))
-						ds.unite(segment.label, prev_segment.label);
-				}
-				else
-				{
-					if(overlap(segment,prev_segment))
-						ds.unite(segment.label, prev_segment.label);
+
+		auto piter=prev_segments.begin();
+		auto pend=prev_segments.end();
+		//auto siter=segments.begin();
+
+		for(auto& seg : segments){
+			for(;piter != pend;++piter){
+				if(overlap<cs>(seg,*piter)){
+					break;
 				}
 			}
+			for(auto cpiter=piter;cpiter != pend && overlap<cs>(seg,*cpiter);++cpiter){
+				ds.unite(seg.label,cpiter->label);
+				piter=cpiter;
+			}
 		}
+		
 	}
 }
 
-template<class label_t>
-void SegmentImageImpl<label_t>::update_compiletime_dispatch
-(const uint8_t* binary_image,cs_tag<ConnectivitySelection::CROSS>)
-{
-	update_compiletime_dispatch_connectivity<ConnectivitySelection::CROSS>(binary_image);
-}
-template<class label_t>
-void SegmentImageImpl<label_t>::update_compiletime_dispatch
-(const uint8_t* binary_image,cs_tag<ConnectivitySelection::EIGHT_WAY>)
-{
-	update_compiletime_dispatch_connectivity<ConnectivitySelection::EIGHT_WAY>(binary_image);
-}
-template<class label_t>
-void SegmentImageImpl<label_t>::update_compiletime_dispatch
-(const uint8_t* binary_image,cs_tag<ConnectivitySelection::VERTICAL>)
-{
-    
-}
 
 template class SegmentImageImpl<uint8_t>;
 template class SegmentImageImpl<uint16_t>;
 template class SegmentImageImpl<uint32_t>;
 template class SegmentImageImpl<uint64_t>;
-
 
 }

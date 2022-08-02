@@ -71,6 +71,7 @@ void SegmentImageImpl<label_t>::compress_scanlines(
 	}
 }
 
+
 template class SegmentImageImpl<uint8_t>;
 template class SegmentImageImpl<uint16_t>;
 template class SegmentImageImpl<uint32_t>;
