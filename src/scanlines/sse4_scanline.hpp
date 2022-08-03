@@ -93,22 +93,13 @@ struct check_all {
 	}
 };
 
-//#define DEBUG_SSE_FIND_NEXT
-#ifdef DEBUG_SSE_FIND_NEXT
 template<bool mask>
 struct find_next_limit<16,mask>{
 	static index_t impl(const uint8_t* buf){
-		//uint8_t* debug_buf = const_cast<uint8_t*>(buf);
-		//for(index_t i = 0; i < 16; i++)
-		//	debug_buf[i] = i;
 		__m128i r=_mm_lddqu_si128((const __m128i*)buf);
-		//uint64_t r0 = _mm_extract_epi64(r,0);
-		// r0 gets loaded as: 706050403020100
 		return sse4::find_next<mask>(r);
 	}
 };
-
-#endif
 
 template<bool mask>
 index_t find_next(const uint8_t* buf,const index_t N){
