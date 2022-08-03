@@ -24,13 +24,13 @@ static void compress_scanline(const uint8_t* bimg,const uint_fast16_t C,MakeSeg&
         beginning=i;
 		uint_fast16_t ending=C;
 		// Look for end (first 0 after beginning)
-		i++; // optimization - optional, can remove
+		//i++; // optimization - optional, can remove
 		i+=scanline_impl::find_next<false>(bimg+i,C-i);
 		ending=i;
 		msfunc(beginning,ending);
 
 		// Look for next segment's beginning 1 after end 0
-		i++; // optimization - optional, can remove
+		//i++; // optimization - optional, can remove
     }
 }
 
