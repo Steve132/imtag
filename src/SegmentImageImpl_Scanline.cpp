@@ -11,7 +11,7 @@ namespace scanline_impl=scanline_base;
 
 // NOTE: This is BY FAR the performance bottleneck:
 template<class MakeSeg>
-static void compress_scanline(const uint8_t* bimg,const uint_fast16_t rindex,const uint_fast16_t C,MakeSeg&& msfunc){
+static void compress_scanline(const uint8_t* bimg,const uint_fast16_t C,MakeSeg&& msfunc){
 	uint_fast16_t i=0;
 	// Iterate over one row
     while(i<C){
@@ -27,7 +27,7 @@ static void compress_scanline(const uint8_t* bimg,const uint_fast16_t rindex,con
 		// i++; // optimization - optional, can remove
 		i+=scanline_impl::find_next<false>(bimg+i,C-i);
 		ending=i;
-        msfunc(rindex,beginning,ending);
+		msfunc(beginning,ending);
 
 		// Look for next segment's beginning 1 after end 0
 		// i++; // optimization - optional, can remove
@@ -49,23 +49,21 @@ void SegmentImageImpl<label_t>::compress_scanlines(
 	#pragma omp parallel for
 	for(uint_fast16_t r=0;r<R16;r++){
 		// Append segments to this scanline
-		label_t rlabel = 0;
 		auto& rows=output_rows[r];
 		rows.clear();
-		compress_scanline(binary_image+C16*r,r,C16,
+		compress_scanline(binary_image+C16*r,C16,
 			// Make segment (seg_t) function:
-			[&rows,&rlabel](uint_fast16_t rind,uint_fast16_t cbegin,uint_fast16_t cend){
-				rows.emplace_back(rind,cbegin,cend,rlabel++);
+			[&rows,&r](const uint_fast16_t cbegin,const uint_fast16_t cend){
+				rows.emplace_back(r,cbegin,cend,0);
 			}
 		);
 	}
 
 	// Assign unique labels across scanlines: linearize labels now that labels assigned per row
 	label_t label = 0;
-	for(size_t r=0;r<R;r++){
+	for(uint_fast16_t r=0;r<R16;r++){
 		auto& rows=output_rows[r];
-		for(auto& row : rows)
-		{
+		for(auto& row : rows){
 			row.label = label++;
 		}
 	}

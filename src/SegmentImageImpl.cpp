@@ -80,16 +80,21 @@ void SegmentImageImpl<label_t>::update_connectivity()
 	if constexpr(cs==ConnectivitySelection::HORIZONTAL){
 		return;
 	}
+	static constexpr size_t max_nsegments = std::numeric_limits<label_t>::max();
 
 	size_t nsegments = 0;
 	for(const auto& seg_row : segments_by_row)
 		nsegments += seg_row.size(); //Todo should this techinically actually be the max label because of potentially nonlinear labeling?
+	if(nsegments > max_nsegments)
+		throw std::runtime_error("Too many segments found for label type.  Increase size of label type for SegmentImage.");
 	ds.reset(nsegments);
-	// TODO: speckles and noise: optimize with pointer walk for previous and current row segments
+	if(nsegments == 0)
+		return;
+
+	auto& prev_segments = segments_by_row[0];
 	for(size_t y = 1; y < segments_by_row.size(); y++)
 	{
 		// look above
-		auto& prev_segments = segments_by_row[y-1];
 		if(!prev_segments.size())
 			continue;
 		auto& segments = segments_by_row[y];
@@ -105,7 +110,7 @@ void SegmentImageImpl<label_t>::update_connectivity()
 			else
 				segment++;
 		}
-		
+		prev_segments = segments;
 	}
 }
 

@@ -26,7 +26,6 @@ struct lt_cmp{
 	}
 };
 
-
 //https://arxiv.org/pdf/1911.06347.pdf
 template<	class label_uint_t,
 			class label_cmp_func=prand_cmp,
@@ -42,12 +41,12 @@ public:
 		return parents.size();
 	}
 
-	disjoint_set(label_uint_t N=0) {
+	disjoint_set(const label_uint_t N=0) {
 		reset(N);
 	}
-	void reset(label_uint_t N){
+	void reset(const label_uint_t N){
 		parents.resize((size_t)N);
-		for(size_t i=0;i<N;i++){
+		for(label_uint_t i=0;i<N;i++){
 			parents[i]=i;
 		}
 	}
@@ -57,7 +56,7 @@ public:
 		while(px != x)
 		{
 			label_uint_t ppx=safe_ref(parents[px]);
-			//if(ppx==px) return px; early reject?
+			//if(ppx==px) return px; // early reject?
 			parents[x]=ppx; 	//ON PURPOSE.  This writeback isn't needed for correctness so it can be non-atomic
 			x=px;px=ppx;
 		}
@@ -65,16 +64,16 @@ public:
 	}
 	// freeze labels
 	void freeze(label_uint_t* out) const{
-		size_t N=size();
-		for(size_t i=0;i<N;i++){
+		label_uint_t N=size();
+		for(label_uint_t i=0;i<N;i++){
 			out[i]=find(i);
 		}
 	}
-	// Reduce and linearize labels: need out to be set to label_max before!
+	// Reduce and linearize labels
 	size_t compressed_freeze(label_uint_t* out) const{
 		size_t N=size();
 		static constexpr label_uint_t UNSET_LABEL = std::numeric_limits<label_uint_t>::max();
-		std::fill(out, out + N, UNSET_LABEL);
+		std::fill_n(out, N, UNSET_LABEL);
 
 		// 0 1 2 3 4 5 6 7 8 9
 		// a b a a c c d a d b
@@ -83,14 +82,15 @@ public:
 		// becomes:
 		// 0 1 0 0 2 2 3 0 3 1
 		label_uint_t new_label = 0;
-		for(size_t i=0;i<N;i++){
+		for(label_uint_t i=0;i<N;i++){
 			label_uint_t r = find(i);
-			if(out[r] == UNSET_LABEL)
+			label_uint_t& out_r = out[r];
+			if(out_r == UNSET_LABEL)
 			{
-				out[r] = new_label;
+				out_r = new_label;
 				new_label++;
 			}
-			out[i] = out[r];
+			out[i] = out_r;
 		}
 		return new_label;
 	}
@@ -122,7 +122,7 @@ public:
 		return lsofar;
 	}
 
-	bool unite(label_uint_t x,label_uint_t y) {  //AKA union but that's not a valid keyword in C++
+	bool unite(const label_uint_t x, const label_uint_t y) {  //AKA union but that's not a valid keyword in C++
 		label_uint_t xroot=find(x);
 		label_uint_t yroot=find(y);
 

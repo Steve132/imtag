@@ -28,7 +28,7 @@ public:
 
 	friend std::ostream &operator<<(std::ostream &output, const Segment& seg)
 	{
-		output << seg.row << ": " << seg.column_begin << ", " << seg.column_end;
+		output << "label: " << seg.label << " " << seg.row << ": " << seg.column_begin << ", " << seg.column_end;
 		return output;
 	}
 };
