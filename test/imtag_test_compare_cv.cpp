@@ -129,7 +129,7 @@ int main(int argc,char** argv)
 		std::cout << "Imtag benchmark: ";
 		benchmark(z, niters);
 		std::cout << "CV_CC benchmark: ";
-		benchmark(z2, niters);
+		//benchmark(z2, niters);
 	}
 	std::vector<int> labelImage = cvConnectedComponentsWithStats(bwimage.data(), bwimage.width(), bwimage.height(), 4, false);
 	compareLabelImage(labelImage, segs);

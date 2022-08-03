@@ -10,28 +10,28 @@
 namespace scanline_impl=scanline_base;
 
 // NOTE: This is BY FAR the performance bottleneck:
-template<class MakeSeg>
-static void compress_scanline(const uint8_t* bimg,const uint_fast16_t C,MakeSeg&& msfunc){
+template<class seg_t>
+static void compress_scanline(const uint8_t* bimg,const uint_fast16_t C,std::vector<seg_t>& row_segments, const uint_fast16_t r){
 	uint_fast16_t i=0;
 	// Iterate over one row
-    while(i<C){
+	while(i<C){
 		// Search for 1s
 		uint_fast16_t beginning;
 		i+=scanline_impl::find_next<true>(bimg+i,C-i);
 		if(i==C) {
-            break;
-        }
-        beginning=i;
+			break;
+		}
+		beginning=i;
 		uint_fast16_t ending=C;
 		// Look for end (first 0 after beginning)
 		//i++; // optimization - optional, can remove
 		i+=scanline_impl::find_next<false>(bimg+i,C-i);
 		ending=i;
-		msfunc(beginning,ending);
+		row_segments.emplace_back(r,beginning,ending,0);
 
 		// Look for next segment's beginning 1 after end 0
 		//i++; // optimization - optional, can remove
-    }
+	}
 }
 
 
@@ -46,17 +46,16 @@ void SegmentImageImpl<label_t>::compress_scanlines(
 
 	uint_fast16_t R16 = static_cast<uint_fast16_t>(R);
 	uint_fast16_t C16 = static_cast<uint_fast16_t>(C);
-	#pragma omp parallel for
+	// TODO: try force pin image loaded directly to L3 cache
+	//#pragma omp parallel for schedule(dynamic)
+	//#pragma omp parallel for schedule(static)
+	//#pragma omp parallel for num_threads(6)
+	#pragma omp parallel for schedule(guided) num_threads(6)
 	for(uint_fast16_t r=0;r<R16;r++){
 		// Append segments to this scanline
-		auto& rows=output_rows[r];
-		rows.clear();
-		compress_scanline(binary_image+C16*r,C16,
-			// Make segment (seg_t) function:
-			[&rows,&r](const uint_fast16_t cbegin,const uint_fast16_t cend){
-				rows.emplace_back(r,cbegin,cend,0);
-			}
-		);
+		auto& row=output_rows[r];
+		row.clear();
+		compress_scanline(binary_image+C16*r,C16,row,r);
 	}
 
 	// Assign unique labels across scanlines: linearize labels now that labels assigned per row
