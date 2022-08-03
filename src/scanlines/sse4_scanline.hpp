@@ -42,23 +42,13 @@ static inline bool is_all(const uint64_t r)
 // mask = 0 Search for 0s i.e. end of segment
 // little-endian: search from the right to the left for byte offset
 template<bool mask>
-static inline index_t find_next(const uint64_t r){
+static inline index_t find_next(uint64_t r){
 	if(is_all<!mask>(r)) return 8;
-/*	if constexpr(mask)
+	if constexpr(!mask)
 	{
-		return (__builtin_clzll(r) / 8); //ctzll for trailing zeros
+		r = ~r;
 	}
-	else
-	*/
-	{
-		for(index_t i=0;i<8;i++){
-			static constexpr uint64_t TEST=mask ? 0xFF : 0x00;
-			if(((r >> (8*i)) & 0xFF)==TEST){
-				return i;
-			}
-		}
-	}
-	return 8;
+	return (__builtin_ctzll(r) / 8); //TODO: visual studio version // c++20 std::countr_zero
 }
 
 template<bool mask>
