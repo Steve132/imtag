@@ -91,14 +91,14 @@ void SegmentImageImpl<label_t>::update_connectivity()
 	if(nsegments == 0)
 		return;
 
-	auto& prev_segments = segments_by_row[0];
 	for(size_t y = 1; y < segments_by_row.size(); y++)
 	{
 		// look above
+		const auto& prev_segments = segments_by_row[y-1];
 		if(!prev_segments.size())
 			continue;
-		auto& segments = segments_by_row[y];
-		typename std::vector<Segment<label_t>>::iterator segment = segments.begin(), prev_segment = prev_segments.begin();
+		const auto& segments = segments_by_row[y];
+		typename std::vector<Segment<label_t>>::const_iterator segment = segments.begin(), prev_segment = prev_segments.begin();
 		while((segment != segments.end()) && (prev_segment != prev_segments.end()))
 		{
 			if(overlap<cs>(*segment,*prev_segment)){
@@ -110,7 +110,6 @@ void SegmentImageImpl<label_t>::update_connectivity()
 			else
 				segment++;
 		}
-		prev_segments = segments;
 	}
 }
 
