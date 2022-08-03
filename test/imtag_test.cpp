@@ -45,7 +45,30 @@ static void addNoise(uint8_t* img, const size_t width, const size_t height)
 
 int main(int argc,char** argv)
 {
+	/*
+	uint64_t r = 0x00FFFFFFFFFFFFFFULL;//0xFFFFFFFFFFFFFFFFULL;
+	std::cout << "leading zeros: " << __builtin_clzll(r) << std::endl;
+	// find_next<1> is AFTER the leading zeros
+	std::cout << "find_next<1>: " << (__builtin_clzll(r) >> 3) << std::endl;
 
+	r = 0x0000FFFFFFFFFFFFULL;
+	std::cout << "leading zeros: " << __builtin_clzll(r) << std::endl;
+	// find_next<1> is AFTER the leading zeros
+	std::cout << "find_next<1>: " << (__builtin_clzll(r) >> 3) << std::endl;
+	//  __builtin_clzll: Returns the number of leading 0-bits in x, starting at the most significant bit position. If x is 0, the result is undefined.
+	//  __builtin_ctzll: Returns the number of trailing 0-bits in x, starting at the least significant bit position. If x is 0, the result is undefined.
+
+	r = 0x000000FFFFFFFFFFULL;
+	std::cout << "leading zeros: " << __builtin_clzll(r) << std::endl;
+	// find_next<1> is AFTER the leading zeros
+	std::cout << "find_next<1>: " << (__builtin_clzll(r) >> 3) << std::endl;
+	std::cout << "find_next<0>: " << __builtin_ctzll(r) << std::endl;
+
+	r = 0xFFFFFFFFFFFFFFFFULL;
+	bool mask = 1;
+	std::cout << "mask: " << mask << std::endl;
+	return 0;
+	*/
 	bool do_benchmark = true; //false;
 
 	std::string fname="../../test/blobs1.png";

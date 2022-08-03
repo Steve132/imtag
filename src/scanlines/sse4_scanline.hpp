@@ -38,13 +38,24 @@ static inline bool is_all(const uint64_t r)
 	}
 }
 
+// mask = 1 Search for 1s i.e. beginning of segment
+// mask = 0 Search for 0s i.e. end of segment
+// little-endian: search from the right to the left for byte offset
 template<bool mask>
 static inline index_t find_next(const uint64_t r){
 	if(is_all<!mask>(r)) return 8;
-	for(index_t i=0;i<8;i++){
-		static constexpr uint64_t TEST=mask ? 0x00 : 0xFF;
-		if(((r >> (8*i)) & 0xFF)==TEST){
-			return i;
+/*	if constexpr(mask)
+	{
+		return (__builtin_clzll(r) / 8); //ctzll for trailing zeros
+	}
+	else
+	*/
+	{
+		for(index_t i=0;i<8;i++){
+			static constexpr uint64_t TEST=mask ? 0xFF : 0x00;
+			if(((r >> (8*i)) & 0xFF)==TEST){
+				return i;
+			}
 		}
 	}
 	return 8;
@@ -92,11 +103,17 @@ struct check_all {
 	}
 };
 
+//#define DEBUG_SSE_FIND_NEXT
 #ifdef DEBUG_SSE_FIND_NEXT
 template<bool mask>
 struct find_next_limit<16,mask>{
 	static index_t impl(const uint8_t* buf){
+		//uint8_t* debug_buf = const_cast<uint8_t*>(buf);
+		//for(index_t i = 0; i < 16; i++)
+		//	debug_buf[i] = i;
 		__m128i r=_mm_lddqu_si128((const __m128i*)buf);
+		//uint64_t r0 = _mm_extract_epi64(r,0);
+		// r0 gets loaded as: 706050403020100
 		return sse4::find_next<mask>(r);
 	}
 };

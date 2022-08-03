@@ -24,13 +24,13 @@ static void compress_scanline(const uint8_t* bimg,const uint_fast16_t C,MakeSeg&
         beginning=i;
 		uint_fast16_t ending=C;
 		// Look for end (first 0 after beginning)
-		// i++; // optimization - optional, can remove
+		i++; // optimization - optional, can remove
 		i+=scanline_impl::find_next<false>(bimg+i,C-i);
 		ending=i;
 		msfunc(beginning,ending);
 
 		// Look for next segment's beginning 1 after end 0
-		// i++; // optimization - optional, can remove
+		i++; // optimization - optional, can remove
     }
 }
 
@@ -46,7 +46,7 @@ void SegmentImageImpl<label_t>::compress_scanlines(
 
 	uint_fast16_t R16 = static_cast<uint_fast16_t>(R);
 	uint_fast16_t C16 = static_cast<uint_fast16_t>(C);
-	#pragma omp parallel for
+	//#pragma omp parallel for
 	for(uint_fast16_t r=0;r<R16;r++){
 		// Append segments to this scanline
 		auto& rows=output_rows[r];

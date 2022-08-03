@@ -11,11 +11,11 @@ void SegmentImageImpl<label_t>::rows_to_components(){
 	for(auto& component : components)
 		component.clear();
 	components.resize(M);
-	for(auto& scanline : segments_by_row){
-		for(auto& seg : scanline){
+	for(const auto& scanline : segments_by_row){
+		for(const auto& seg : scanline){
 			// Update segment label to compressed label
-			seg.label=cc_nodes[seg.label];
 			auto seg_copy=seg;
+			seg_copy.label=cc_nodes[seg.label];
 			components[seg_copy.label].push_back(seg_copy);
 		}
 	}
