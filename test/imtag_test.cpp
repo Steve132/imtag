@@ -82,7 +82,7 @@ int main(int argc,char** argv)
 	//addNoise(bwimage.data(), bwimage.width(), bwimage.height());
 	//bwimage.write("test.png");
 
-	using label_t = uint16_t;
+	using label_t = uint32_t;
 	auto segs = imtag::SegmentImage<label_t>(bwimage.height(), bwimage.width());
 	if(do_benchmark)
 	{
@@ -102,6 +102,13 @@ int main(int argc,char** argv)
 
 	std::vector<label_t> labelImage0(bwimage.width() * bwimage.height());
 	segs.to_label_image(labelImage0.data());
+	if(segs.components().size() > 1)
+	{
+		const auto& first_component_segment = segs.components()[1][0];
+		const label_t label_image_first_component = (labelImage0.data() + first_component_segment.row * bwimage.width() + first_component_segment.column_begin)[0];
+		if(first_component_segment.label != label_image_first_component)
+			std::cout << "error with to_label_image." << std::endl;
+	}
 
 	stbi::Image labelImage(bwimage.width(), bwimage.height(), 3);
 	labelImage.fill(0);

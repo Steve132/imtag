@@ -67,6 +67,19 @@ const typename SegmentImage<label_t>::components_t& SegmentImage<label_t>::compo
 }
 
 template<class label_t>
+typename std::vector<std::vector<Segment<label_t>>>& SegmentImage<label_t>::segments_by_row()
+{
+	return impl->segments_by_row;
+}
+
+template<class label_t>
+const typename std::vector<std::vector<Segment<label_t>>>& SegmentImage<label_t>::segments_by_row() const
+{
+	return impl->segments_by_row;
+}
+
+
+template<class label_t>
 void SegmentImage<label_t>::to_label_image(label_t* image) const
 {
 	impl->to_label_image(image);
