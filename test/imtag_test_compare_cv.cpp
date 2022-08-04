@@ -123,7 +123,7 @@ int main(int argc,char** argv)
 	auto segs = imtag::SegmentImage<uint16_t>(bwimage.height(), bwimage.width());
 	if(do_benchmark)
 	{
-		size_t niters = 25000;
+		size_t niters = 100;//25000;
 		auto z = [&bwimage, &segs](){ segs.update(bwimage.data(), imtag::ConnectivitySelection::CROSS); };
 		auto z2 = [&bwimage](){ auto segs = cvConnectedComponentsWithStats(bwimage.data(), bwimage.width(), bwimage.height(), 4); };
 		std::cout << "Imtag benchmark: ";
