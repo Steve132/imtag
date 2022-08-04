@@ -8,12 +8,11 @@ namespace detail
 template<class pixel_t,class label_t,bool maskmode>
 void to_label_image(pixel_t* image, const size_t rows, const size_t columns, const std::vector<std::vector<typename SegmentImageImpl<label_t>::seg_t>>& segments_by_row)
 {
-	// TODO: should this be assumed to be 0 initialized?  Could it be faster?
-	std::memset(image, 0, rows * columns * sizeof(pixel_t));
-
+	#pragma omp parallel for schedule(dynamic)
 	for(size_t y = 0; y < segments_by_row.size(); y++)
 	{
 		pixel_t* image_row = image + y*columns;
+		std::memset(image_row, 0, columns * sizeof(pixel_t));
 		const auto& segments = segments_by_row[y];
 		for(const auto& segment : segments)
 		{

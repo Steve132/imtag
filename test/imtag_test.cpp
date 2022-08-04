@@ -97,7 +97,7 @@ int main(int argc,char** argv)
 	std::cout << "# components: " << segs.components().size() << std::endl;
 
 	stbi::Image maskImage(bwimage.width(), bwimage.height(), 1);
-	segs.to_mask_image(maskImage.data());
+	benchmark([&maskImage,&segs](){	segs.to_mask_image(maskImage.data()); }, 5000);
 	maskImage.write("mask.png");
 
 	std::vector<label_t> labelImage0(bwimage.width() * bwimage.height());
