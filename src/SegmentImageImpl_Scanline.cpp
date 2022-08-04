@@ -52,17 +52,20 @@ void SegmentImageImpl<label_t>::compress_scanlines(
 #ifdef TRY_THREADED
 	std::array<std::thread,6> thread_pool;
 	uint_fast16_t chunk_size = R16 / thread_pool.size();
+	std::atomic_uint_fast16_t r = 0;
 	for(uint8_t thread_ind = 0; thread_ind < thread_pool.size(); thread_ind++)
 	{
-		uint_fast16_t thread_start_r = thread_ind*chunk_size, thread_end_r = std::min(thread_start_r + chunk_size + 1, R16);
+		//uint_fast16_t thread_start_r = thread_ind*chunk_size, thread_end_r = std::min(thread_start_r + chunk_size + 1, R16);
 		thread_pool[thread_ind] = std::thread(
-		[thread_start_r, thread_end_r, &output_rows, binary_image, C16]()
+		[&r, &output_rows, binary_image, C16, R16]()
 		{
-			for(uint_fast16_t r=thread_start_r;r<thread_end_r;r++){
+			//for(uint_fast16_t lr=r++;lr<R16;lr++){
+			uint_fast16_t lr;
+			while((lr = (r++))<R16){
 				// Append segments to this scanline
-				auto& row=output_rows[r];
+				auto& row=output_rows[lr];
 				row.clear();
-				compress_scanline(binary_image+C16*r,C16,row,r);
+				compress_scanline(binary_image+C16*lr,C16,row,lr);
 			}
 		});
 	}
