@@ -1,8 +1,12 @@
 
+set(IMTAG_HEADERS 
+	${CMAKE_CURRENT_SOURCE_DIR}/../include/imtag.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../include/imtag_statistics.hpp
+)
+
 add_library(imtag 
     imtag.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/imtag.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../include/imtag_statistics.hpp
+	${IMTAG_HEADERS}
 	imtag_statistics.cpp
     disjoint_set.hpp
 	SegmentImageImpl.hpp
@@ -19,6 +23,11 @@ add_library(imtag
 	scanlines/neon_scanline.hpp
 	scanlines/index.hpp
 )
+
+set_property(TARGET imtag PROPERTY
+	PUBLIC_HEADER ${IMTAG_HEADERS}
+)
+
 
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)

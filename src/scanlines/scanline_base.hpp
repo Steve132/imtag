@@ -62,6 +62,12 @@ struct find_next_nolimit<0,mask>{
     }
 };
 
+
+template<bool mask>
+index_t find_next(const uint8_t* buf,const index_t N){
+	return find_next_nolimit<16,mask>::impl(buf,N);
+}
+
 }
 
 #endif

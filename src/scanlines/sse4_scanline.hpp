@@ -101,10 +101,9 @@ struct find_next_limit<16,mask>{
 	}
 };
 
-template<bool mask>
-index_t find_next(const uint8_t* buf,const index_t N){
-	return find_next_nolimit<16,mask>::impl(buf,N);
-}
+#ifndef __AVX2__
+
+#endif
 
 }
 
