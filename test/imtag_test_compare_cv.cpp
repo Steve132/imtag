@@ -7,6 +7,7 @@
 #include "cv_comparison/cvConnectedComponentsWithStats.h"
 #include <algorithm>
 #include <unordered_map>
+#include <thread>
 
 template <typename FUNC>
 void benchmark(FUNC f, const size_t niters = 1000)
@@ -126,10 +127,33 @@ int main(int argc,char** argv)
 		size_t niters = 25000;
 		auto z = [&bwimage, &segs](){ segs.update(bwimage.data(), imtag::ConnectivitySelection::CROSS); };
 		auto z2 = [&bwimage](){ auto segs = cvConnectedComponentsWithStats(bwimage.data(), bwimage.width(), bwimage.height(), 4); };
+
+		// Benchmark time to allocate and close threads:
+		std::array<int,6> test_out;
+		auto z3 = [&test_out](){
+			std::array<std::thread,6> thread_pool;
+			uint_fast16_t chunk_size = 1 / thread_pool.size();
+
+			for(uint8_t thread_ind = 0; thread_ind < thread_pool.size(); thread_ind++)
+			{
+				auto& thread_test_out = test_out[thread_ind];
+				thread_pool[thread_ind] = std::thread(
+				[&thread_test_out]()
+				{
+					thread_test_out = 5;
+				});
+			}
+			for(uint8_t thread_ind = 0; thread_ind < thread_pool.size(); thread_ind++)
+				thread_pool[thread_ind].join();
+		};
+		//std::cout << "Empty thread allocation benchmark: " << std::endl;
+		//benchmark(z3, niters);
+		//for(uint8_t thread_ind = 0; thread_ind < test_out.size(); thread_ind++)
+		//	std::cout << test_out[thread_ind] << std::endl;
 		std::cout << "Imtag benchmark: ";
 		benchmark(z, niters);
 		std::cout << "CV_CC benchmark: ";
-		benchmark(z2, niters);
+		//benchmark(z2, niters);
 	}
 	std::vector<int> labelImage = cvConnectedComponentsWithStats(bwimage.data(), bwimage.width(), bwimage.height(), 4, false);
 	compareLabelImage(labelImage, segs);
