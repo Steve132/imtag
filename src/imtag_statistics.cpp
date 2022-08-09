@@ -10,19 +10,19 @@ void BoundingBox::draw(uint8_t* image, const size_t image_width, const int nchan
 
 	// draw top line of bb:
 	uint8_t* image_top_left = image + top*image_width*nchannels + left*nchannels;
-	memset(image_top_left, 255, (right - left)*nchannels);
+	memset(image_top_left, 0xFF, (right - left)*nchannels);
 
 	// draw bottom line of bb:
 	uint8_t* image_bottom_left = image + bottom*image_width*nchannels + left*nchannels;
-	memset(image_bottom_left, 255, (right - left)*nchannels);
+	memset(image_bottom_left, 0xFF, (right - left)*nchannels);
 
 	// draw left and right lines of bb:
 	for(coord_t y = top; y < bottom; y++)
 	{
 		// draw left line of bb:
-		memset(image + y*image_width*nchannels + left*nchannels, 255, nchannels);
+		memset(image + y*image_width*nchannels + left*nchannels, 0xFF, nchannels);
 		// draw right line of bb:
-		memset(image + y*image_width*nchannels + right*nchannels, 255, nchannels);
+		memset(image + y*image_width*nchannels + right*nchannels, 0xFF, nchannels);
 	}
 }
 

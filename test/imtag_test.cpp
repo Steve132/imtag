@@ -119,38 +119,23 @@ int main(int argc,char** argv)
 	}
 	segs.remove_components(tooSmallLabels);
 
+	// Draw color label image of components:
 	stbi::Image colorLabelImage(bwimage.width(), bwimage.height(), 4);
 	segs.to_rgba_label_image(colorLabelImage.data());
-	colorLabelImage.write("color_labels.png");
 
-	stbi::Image labelImage(bwimage.width(), bwimage.height(), 3);
-	labelImage.fill(0);
-	srand(100);
-	std::cout << "Drawing components" << std::endl;
+	// Draw bounding boxes and centroids per component:
 	for(const auto& component : segs.components())
 	{
-		// Draw component with random colors:
-		uint8_t c0 = static_cast<uint8_t>(255 * ((component[0].label + 1) / static_cast<float>(segs.components().size() + 1)));
-		uint8_t c1 = rand() % 255, c2 = rand() % 255;
-		if(npixels(component) < 40)
-		{
-			imtag::draw(component, labelImage.data(), labelImage.width(), labelImage.nchannels(), 0, 0, 0);
-			continue;
-		}
-		imtag::draw(component, labelImage.data(), labelImage.width(), labelImage.nchannels(), c0, c1, c2);
-
 		// Draw bb
 		auto bb = imtag::bounding_box<label_t>(component);
-		bb.draw(labelImage.data(), labelImage.width(), labelImage.nchannels());
-		bb.draw(bwimage.data(), bwimage.width(), bwimage.nchannels());
+		bb.draw(colorLabelImage.data(), colorLabelImage.width(), colorLabelImage.nchannels());
 
 		// Draw center of component
 		auto center = centroid(component);
-		if((center.first < labelImage.width()) && (center.second < labelImage.height()))
-			labelImage.draw_crosshair(center.first, center.second, 4, 255, 255, 255);
+		colorLabelImage.draw_crosshair(center.first, center.second, 4, 255, 255, 255);
 	}
-	std::cout << "Writing labels image to labels.png." << std::endl;
-	labelImage.write("labels.png");
+	std::cout << "Writing labels image to color_labels.png." << std::endl;
+	colorLabelImage.write("color_labels.png");
 
 	return EXIT_SUCCESS;
 }

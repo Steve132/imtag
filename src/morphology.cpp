@@ -142,6 +142,50 @@ SegmentImageImpl<label_t> SegmentImageImpl<label_t>::label_holes(const SegmentIm
     return inv_a;
 }*/
 
+template<class label_t>
+void SegmentImageImpl<label_t>::remove_components(const std::vector<label_t>& labels)
+{
+	static constexpr label_t invalid = std::numeric_limits<label_t>::max();
+	std::vector<label_t> new_labels(components.size(), 0);
+	for(const label_t& remove_label : labels) {
+		new_labels[remove_label] = invalid;
+	}
+	label_t new_label = 0;
+	for(label_t old_label = 0; old_label < new_labels.size(); old_label++) {
+		if(new_labels[old_label] != invalid) {
+			new_labels[old_label] = new_label;
+			new_label++;
+		}
+	}
+
+	typename SegmentImage<label_t>::components_t components_updated(components.size() - labels.size());
+	label_t c = 0;
+	for(auto& component : components) {
+		label_t& update_label = new_labels[component.front().label];
+		if(update_label != invalid) {
+			components_updated[c] = std::move(component);
+			for(auto& seg : components_updated[c]) {
+				seg.label = update_label;
+			}
+			c++;
+		}
+	}
+	std::swap(components,components_updated);
+
+	for(auto& scanline : segments_by_row) {
+		typename std::vector<SegmentImageImpl<label_t>::seg_t> scanline_updated;
+		scanline_updated.reserve(scanline.size());
+		for(auto& seg : scanline) {
+			label_t& update_label = new_labels[seg.label];
+			if(update_label != invalid) {
+				seg.label = update_label;
+				scanline_updated.emplace_back(std::move(seg));
+			}
+		}
+		std::swap(scanline, scanline_updated);
+	}
+}
+
 template class SegmentImageImpl<uint8_t>;
 template class SegmentImageImpl<uint16_t>;
 template class SegmentImageImpl<uint32_t>;
