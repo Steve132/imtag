@@ -38,10 +38,10 @@ void SegmentImageImpl<label_t>::to_mask_image(uint8_t* image) const
 }
 
 template<class label_t>
-SegmentImageImpl<label_t> SegmentImageImpl<label_t>::invert(const SegmentImageImpl& a){
-    auto& src_rows=a.segments_by_row;
+SegmentImage<label_t> invert(const SegmentImage<label_t>& a){
+    auto& src_rows=a.impl->segments_by_row;
     SegmentImageImpl<label_t> out(a.rows,a.columns);
-    auto& dst_rows=out.segments_by_row;
+    auto& dst_rows=out.impl->segments_by_row;
 
     label_t cur_label=0;
     for(size_t r=0;r<a.rows;r++){
@@ -66,15 +66,15 @@ SegmentImageImpl<label_t> SegmentImageImpl<label_t>::invert(const SegmentImageIm
             dst_row.emplace_back(r,curcol,a.columns,cur_label++);
         }
     }
-    out.update_connectivity<ConnectivitySelection::CROSS>();
+    out.impl->template update_connectivity<ConnectivitySelection::CROSS>();
     return out;
 }
 
 template<class label_t>
-SegmentImageImpl<label_t> SegmentImageImpl<label_t>::dilate(const SegmentImageImpl& a,int mx,int my){
-    auto& src_rows=a.segments_by_row;
+SegmentImage<label_t> dilate(const SegmentImage<label_t>& a,int mx,int my){
+    auto& src_rows=a.segments_by_row();
     SegmentImageImpl<label_t> out(a.rows,a.columns);
-    auto& dst_rows=out.segments_by_row;
+    auto& dst_rows=out.segments_by_row();
     for(size_t r=0;r<a.rows;r++){
         auto& src_row=src_rows[r];
         size_t rd_lower=r < my ? 0 : (r-my);
@@ -97,6 +97,8 @@ SegmentImageImpl<label_t> SegmentImageImpl<label_t>::dilate(const SegmentImageIm
     //update connectivity
     return out;
 }
+
+
 /*
 template<class label_t>
 SegmentImageImpl<label_t> SegmentImageImpl<label_t>::label_holes(const SegmentImageImpl& a){

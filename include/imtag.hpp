@@ -106,6 +106,12 @@ inline SegmentImage<label_t> bwlabel(
     return segs;
 }
 
+template<class label_t>
+SegmentImage<label_t> invert(const SegmentImage<label_t>& a);
+
+template<class label_t>
+SegmentImage<label_t> dilate(const SegmentImage<label_t>& a,int mx,int my);
+
 }
 
 #endif 
