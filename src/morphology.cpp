@@ -99,7 +99,7 @@ SegmentImage<label_t> invert(const SegmentImage<label_t>& a){
 template<class label_t>
 SegmentImage<label_t> dilate(const SegmentImage<label_t>& a,int mx,int my){
     auto& src_rows=a.segments_by_row();
-    SegmentImageImpl<label_t> out(a.rows,a.columns);
+    SegmentImage<label_t> out(a.rows,a.columns);
     auto& dst_rows=out.segments_by_row();
     for(size_t r=0;r<a.rows;r++){
         auto& src_row=src_rows[r];

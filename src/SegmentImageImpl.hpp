@@ -44,10 +44,6 @@ public:
 	void to_mask_image(uint8_t* image) const;
 
 	void remove_components(const std::vector<label_t>& labels);
-
-    static SegmentImageImpl invert(const SegmentImageImpl& a);
-    static SegmentImageImpl dilate(const SegmentImageImpl& a,int mx,int my);
-    static SegmentImageImpl label_holes(const SegmentImageImpl& a);
 };
 
 
