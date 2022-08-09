@@ -80,15 +80,27 @@ const typename std::vector<std::vector<Segment<label_t>>>& SegmentImage<label_t>
 
 
 template<class label_t>
-void SegmentImage<label_t>::to_label_image(label_t* image) const
+void SegmentImage<label_t>::to_label_image(label_t* image, const bool inc_labels_for_background_0) const
 {
-	impl->to_label_image(image);
+	impl->to_label_image(image, inc_labels_for_background_0);
 }
 
 template<class label_t>
 void SegmentImage<label_t>::to_mask_image(uint8_t* image) const
 {
 	impl->to_mask_image(image);
+}
+
+template<class label_t>
+void SegmentImage<label_t>::to_rgba_label_image(uint8_t* image, const std::vector<std::array<uint8_t,4>>& label_colors, const std::array<uint8_t,4>& background_color) const
+{
+	impl->to_rgba_label_image(image, label_colors, background_color);
+}
+
+template<class label_t>
+void SegmentImage<label_t>::remove_components(const std::vector<label_t>& labels)
+{
+	impl->remove_components(labels);
 }
 
 template class SegmentImage<uint8_t>;

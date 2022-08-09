@@ -39,8 +39,11 @@ public:
 	template<ConnectivitySelection cs>
 	void update_connectivity();
 
-	void to_label_image(label_t* image) const;
+	void to_label_image(label_t* image, const bool inc_labels_for_background_0 = true) const;
+	void to_rgba_label_image(uint8_t* image, const std::vector<std::array<uint8_t,4>>& label_colors = {}, const std::array<uint8_t,4>& background_color = {0,0,0,0}) const;
 	void to_mask_image(uint8_t* image) const;
+
+	void remove_components(const std::vector<label_t>& labels);
 
     static SegmentImageImpl invert(const SegmentImageImpl& a);
     static SegmentImageImpl dilate(const SegmentImageImpl& a,int mx,int my);
