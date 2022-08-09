@@ -5,36 +5,62 @@ namespace imtag{
 
 namespace detail
 {
-template<class pixel_t,class label_t,bool maskmode>
-void to_label_image(pixel_t* image, const size_t rows, const size_t columns, const std::vector<std::vector<typename SegmentImageImpl<label_t>::seg_t>>& segments_by_row)
+template<class pixel_t,class label_t,bool maskmode, bool colormode>
+void to_label_image(pixel_t* image, const size_t rows, const size_t columns, const std::vector<std::vector<typename SegmentImageImpl<label_t>::seg_t>>& segments_by_row, const label_t inc_labels_for_background_0 = 1, const std::vector<pixel_t>& label_colors = {}, const pixel_t background_color = 0)
 {
 	#pragma omp parallel for schedule(dynamic)
 	for(size_t y = 0; y < segments_by_row.size(); y++)
 	{
 		pixel_t* image_row = image + y*columns;
-		std::memset(image_row, 0, columns * sizeof(pixel_t));
+		std::memset(image_row, background_color, columns * sizeof(pixel_t));
 		const auto& segments = segments_by_row[y];
 		for(const auto& segment : segments)
 		{
 			if constexpr (maskmode)
 				std::fill_n(image_row + segment.column_begin, segment.column_end - segment.column_begin, 0xFF);
+			else if constexpr(colormode)
+				std::fill_n(image_row + segment.column_begin, segment.column_end - segment.column_begin, label_colors[segment.label]);
 			else
-				std::fill_n(image_row + segment.column_begin, segment.column_end - segment.column_begin, segment.label);
+				std::fill_n(image_row + segment.column_begin, segment.column_end - segment.column_begin, segment.label + inc_labels_for_background_0);
 		}
 	}
 }
 }
 
 template<class label_t>
-void SegmentImageImpl<label_t>::to_label_image(label_t* image) const
+void SegmentImageImpl<label_t>::to_label_image(label_t* image, const bool inc_labels_for_background_0) const
 {
-	detail::to_label_image<label_t, label_t,false>(image, rows, columns, segments_by_row);
+	detail::to_label_image<label_t, label_t,false,false>(image, rows, columns, segments_by_row, inc_labels_for_background_0 ? label_t(1) : label_t(0));
+}
+
+template<class label_t>
+void SegmentImageImpl<label_t>::to_rgba_label_image(uint8_t* image, const std::vector<std::array<uint8_t,4>>& label_colors, const std::array<uint8_t,4>& background_color) const
+{
+	std::vector<uint32_t> label_colors32;
+	label_t last_label = components.back().back().label;
+	label_colors32.reserve(last_label + 1);
+	if(label_colors.size())
+	{
+		std::transform(label_colors.begin(), label_colors.end(), std::back_inserter(label_colors32),
+			[](const std::array<uint8_t,4> c) { return *reinterpret_cast<const uint32_t*>(c.data()); });
+	}
+
+	// Assign random colors for components with no set label color
+	srand(100);
+	for(label_t l = 0; l < (last_label + 1 - label_colors.size()); l++)
+	{
+		std::array<uint8_t,4> color = {uint8_t(rand() % 255), uint8_t(rand() % 255), uint8_t(rand() % 255), 0xFF};
+		label_colors32.push_back(*reinterpret_cast<const uint32_t*>(color.data()));
+	}
+
+	uint32_t background_color32 = *reinterpret_cast<const uint32_t*>(background_color.data());
+	detail::to_label_image<uint32_t, label_t,false,true>(reinterpret_cast<uint32_t*>(image), rows, columns, segments_by_row, label_t(0), label_colors32, background_color32);
 }
 
 template<class label_t>
 void SegmentImageImpl<label_t>::to_mask_image(uint8_t* image) const
 {
-	detail::to_label_image<uint8_t, label_t,true>(image, rows, columns, segments_by_row);
+	detail::to_label_image<uint8_t, label_t,true,false>(image, rows, columns, segments_by_row);
 }
 
 template<class label_t>

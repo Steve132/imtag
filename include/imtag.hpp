@@ -85,8 +85,11 @@ public:
     void update(const uint8_t* boolean_image, const ConnectivitySelection cs = ConnectivitySelection::CROSS);
     void update_connectivity(const ConnectivitySelection cs = ConnectivitySelection::CROSS);
 
-	void to_label_image(label_t* image) const;
+	void to_label_image(label_t* image, const bool inc_labels_for_background_0 = true) const;
+	void to_rgba_label_image(uint8_t* image, const std::vector<std::array<uint8_t,4>>& label_colors = {}, const std::array<uint8_t,4>& background_color = {0,0,0,0}) const;
 	void to_mask_image(uint8_t* image) const;
+
+	void remove_components(const std::vector<label_t>& labels);
 
     SegmentImage(const SegmentImage&);
     SegmentImage& operator=(const SegmentImage&);

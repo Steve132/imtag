@@ -113,6 +113,33 @@ void SegmentImageImpl<label_t>::update_connectivity()
 	}
 }
 
+template<class label_t>
+void SegmentImageImpl<label_t>::remove_components(const std::vector<label_t>& labels)
+{
+	for(typename SegmentImage<label_t>::components_t::iterator component_it = components.begin(); component_it != components.end(); ) {
+		label_t label = component_it->front().label;
+		const auto& label_it = std::find(labels.begin(), labels.end(), label);
+		if(label_it != labels.end())
+		{
+			// Erase segment in segments_by_row
+			for(const auto& seg : *component_it) {
+				// Erase segments in segments_by_row belonging to this component:
+				auto& scanline = segments_by_row[seg.row];
+				for(typename std::vector<seg_t>::iterator scanline_seg_it = scanline.begin(); scanline_seg_it != scanline.end(); ) {
+					if(scanline_seg_it->label == label)
+						scanline_seg_it = scanline.erase(scanline_seg_it);
+					else
+						scanline_seg_it++;
+				}
+			}
+			// Erase component
+			component_it = components.erase(component_it);
+		}
+		else
+			component_it++;
+	}
+}
+
 
 template class SegmentImageImpl<uint8_t>;
 template class SegmentImageImpl<uint16_t>;

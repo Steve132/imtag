@@ -101,7 +101,7 @@ int main(int argc,char** argv)
 	maskImage.write("mask.png");
 
 	std::vector<label_t> labelImage0(bwimage.width() * bwimage.height());
-	segs.to_label_image(labelImage0.data());
+	segs.to_label_image(labelImage0.data(), 0);
 	if(segs.components().size() > 1)
 	{
 		const auto& first_component_segment = segs.components()[1][0];
@@ -109,6 +109,19 @@ int main(int argc,char** argv)
 		if(first_component_segment.label != label_image_first_component)
 			std::cout << "error with to_label_image." << std::endl;
 	}
+
+	// Remove too small/noise components:
+	std::vector<label_t> tooSmallLabels;
+	for(const auto& component : segs.components())
+	{
+		if(npixels(component) < 4000)
+			tooSmallLabels.push_back(component.front().label);
+	}
+	segs.remove_components(tooSmallLabels);
+
+	stbi::Image colorLabelImage(bwimage.width(), bwimage.height(), 4);
+	segs.to_rgba_label_image(colorLabelImage.data());
+	colorLabelImage.write("color_labels.png");
 
 	stbi::Image labelImage(bwimage.width(), bwimage.height(), 3);
 	labelImage.fill(0);
