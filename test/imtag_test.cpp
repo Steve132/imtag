@@ -102,6 +102,15 @@ int main(int argc,char** argv)
 	inverted.to_mask_image(invertedImage.data());
 	invertedImage.write("inverted.png");
 
+	if(do_benchmark)
+	{
+		size_t niters = 500;
+		std::cout << "Hole adjacencies benchmark " << std::endl;
+		auto z = [&segs](){ uint32_t adj_cols; hole_adjacencies(segs,adj_cols); };
+		//auto z = [&inverted, &segs](){ std::vector<bool> adj_matrix(segs.components().size() * inverted.components().size(), false); };//hole_adjacencies(segs); };
+		benchmark(z, niters);
+	}
+
 	stbi::Image adjacenciesImage(segs.columns(), segs.rows(), 4);
 	segs.to_rgba_adjacencies_image(adjacenciesImage.data());
 	adjacenciesImage.write("adjacencies.png");

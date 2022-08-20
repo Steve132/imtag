@@ -58,31 +58,32 @@ void SegmentImageImpl<label_t>::to_rgba_label_image(uint8_t* image, const std::v
 }
 
 template<class label_t>
-void SegmentImageImpl<label_t>::to_rgba_adjacencies_image(uint8_t* image, const std::vector<std::vector<bool>>& hole_adjacencies_matrix, const std::array<uint8_t,4>& background_color) const
+void SegmentImageImpl<label_t>::to_rgba_adjacencies_image(uint8_t* image, const std::vector<bool>& hole_adjacencies_matrix, const label_t n_adjacency_matrix_columns, const std::array<uint8_t,4>& background_color) const
 {
 	if(!hole_adjacencies_matrix.size())
 		return;
 
 	std::vector<uint32_t> label_colors32;
-	const size_t n_islands = hole_adjacencies_matrix.size();
+	const label_t n_rivers = n_adjacency_matrix_columns;
+	const label_t n_islands = hole_adjacencies_matrix.size() / n_adjacency_matrix_columns;
 	label_colors32.reserve(n_islands);
-	const size_t n_rivers = hole_adjacencies_matrix[0].size();
-	const size_t one_third_n_rivers = n_rivers / 3;
+	const label_t one_third_n_rivers = n_rivers / 3;
 	std::vector<uint8_t> river_colors(n_rivers,0);
 	srand(100);
-	for(size_t river = 0; river < n_rivers; river++)
+	for(label_t river = 0; river < n_rivers; river++)
 		river_colors[river] = rand() % 255;
+
+	//#pragma omp parallel for schedule(dynamic)
 	for(label_t island = 0; island < n_islands; island++)
 	{
-		const auto& island_adjacencies = hole_adjacencies_matrix[island];
+		label_t island_row_index = island * n_rivers;
 		// Combine river colors.  Partition rivers into 3 color channels.
 		std::array<uint8_t,4> combined_rivers_color;
-		for(size_t channel = 0; channel < 3; channel++)
+		for(label_t channel = 0; channel < 3; channel++)
 		{
 			uint8_t channel_color = 0;
-			const size_t rivers_channel_end = one_third_n_rivers * (channel + 1);
-			for(size_t river = one_third_n_rivers * channel; river < rivers_channel_end; river++)
-				channel_color |= (river_colors[river] * island_adjacencies[river]);
+			for(label_t river = one_third_n_rivers * channel; river < one_third_n_rivers * channel + one_third_n_rivers; river++)
+				channel_color |= (river_colors[river] * hole_adjacencies_matrix[island_row_index + river]);
 			combined_rivers_color[channel] = channel_color;
 		}
 		combined_rivers_color[3] = 0xFF;
@@ -102,28 +103,37 @@ template<class label_t>
 SegmentImage<label_t> invert(const SegmentImage<label_t>& a){
 	const auto& src_rows=a.segments_by_row();
 	SegmentImage<label_t> out(a.rows(),a.columns());
-	auto& dst_rows=out.segments_by_row();
+	auto& output_rows=out.segments_by_row();
 
-	label_t cur_label=0;
-	for(size_t r=0;r<a.rows();r++){
+	const uint_fast16_t R16 = static_cast<uint_fast16_t>(src_rows.size());
+	#pragma omp parallel for schedule(guided) num_threads(6)
+	for(uint_fast16_t r=0;r<R16;r++){
 		const auto& src_row=src_rows[r];
-		auto& dst_row=dst_rows[r];
+		auto& output_row=output_rows[r];
 		if(src_row.size()==0) {
-			dst_row.emplace_back(r,0,a.columns(),cur_label++);
+			output_row.emplace_back(r,0,a.columns(),0);
 			continue;
 		}
 		uint_fast16_t curcol=0;
 		auto cur_seg=src_row.begin();
 		if(cur_seg->column_begin==0){
 			curcol=cur_seg->column_end;
-			if(cur_seg->column_end==a.columns()) continue;
+			if(cur_seg->column_end == a.columns()) continue;
 			++cur_seg;
 		}
-		for(;cur_seg != src_row.end();++cur_seg){
-			dst_row.emplace_back(r,curcol,cur_seg->column_begin,cur_label++);
+		for(; cur_seg != src_row.end(); ++cur_seg){
+			output_row.emplace_back(r,curcol,cur_seg->column_begin,0);
 			curcol=cur_seg->column_end;
 		}
-		dst_row.emplace_back(r,curcol,a.columns(),cur_label++);
+		output_row.emplace_back(r,curcol,a.columns(),0);
+	}
+	// Assign unique labels across scanlines: linearize labels now that labels assigned per row
+	label_t label = 0;
+	for(uint_fast16_t r=0;r<R16;r++){
+		auto& row_segs=output_rows[r];
+		for(auto& seg : row_segs){
+			seg.label = label++;
+		}
 	}
 	out.update_connectivity(ConnectivitySelection::CROSS);
 	return out;
@@ -250,17 +260,19 @@ Island 1 is connected to river A and B.
 Island 2 is connected to river A and not B.
 */
 template<class label_t>
-std::vector<std::vector<bool>> hole_adjacencies(const SegmentImage<label_t>& input)
+std::vector<bool> hole_adjacencies(const SegmentImage<label_t>& input, label_t& n_rivers)
 	//, SegmentImage<label_t>& inverted)
 {
 	auto inverted = invert(input);
+	n_rivers = static_cast<label_t>(inverted.components().size());
 	const size_t n_islands = input.components().size();
-	const size_t n_rivers = inverted.components().size();
 
 	//adj[A][B]=1 iff comp(A)->hole(B)
 	//todo should this be an adjacency list? No.
 	//normally don't use vector bool.  This time it might be okay because cache.
-	std::vector<std::vector<bool>> adj_matrix(n_islands, std::vector<bool>(n_rivers, false));
+	//std::vector<std::vector<bool>> adj_matrix(n_islands, std::vector<bool>(n_rivers, false));
+	// Signficantly faster to allocate single bool vector than vector<vector<bool>>:
+	std::vector<bool> adj_matrix(n_islands * n_rivers, false);
 
 	auto& island_rows = input.segments_by_row();
 	auto& river_rows = inverted.segments_by_row();
@@ -288,7 +300,8 @@ std::vector<std::vector<bool>> hole_adjacencies(const SegmentImage<label_t>& inp
 			// scanline 0: island 0 [0,0-4] and river A [0,4-6] guaranteed to be connected because immediately next to.  island 1 [0, 6-7] conected to river B [0,7-8].
 			// scanline 2: island 1 [2,6-7] and river A [2,0-6]. and skipping river B because no more segments.
 			// Howevever, river B is connected to island 1 on the other side.  Set this below.
-			adj_matrix[island_row[i].label][river_row[i].label]=true;
+			// adj_matrix[island_row[i].label][river_row[i].label]=true;
+			adj_matrix[island_row[i].label * n_rivers + river_row[i].label]=true;
 		}
 
 		// No further adjacencies to find:
@@ -299,12 +312,14 @@ std::vector<std::vector<bool>> hole_adjacencies(const SegmentImage<label_t>& inp
 		if(island_row.front().column_begin > river_row.front().column_begin) {
 			for(size_t i = 1; i < n_pairs; i++){
 				// scanline 2: island 1 [2,6-7], river B [2,7-8].
-				adj_matrix[island_row[i-1].label][river_row[i].label]=true;
+				//adj_matrix[island_row[i-1].label][river_row[i].label]=true;
+				adj_matrix[island_row[i-1].label * n_rivers + river_row[i].label]=true;
 			}
 		}
 		else {
 			for(size_t i = 1; i < n_pairs; i++) {
-				adj_matrix[island_row[i].label][river_row[i-1].label]=true;
+				//adj_matrix[island_row[i].label][river_row[i-1].label]=true;
+				adj_matrix[island_row[i].label * n_rivers + river_row[i-1].label]=true;
 			}
 		}
 	}
@@ -321,8 +336,8 @@ template class SegmentImage<uint16_t> invert(const SegmentImage<uint16_t>& a);
 template class SegmentImage<uint32_t> invert(const SegmentImage<uint32_t>& a);
 template class SegmentImage<uint64_t> invert(const SegmentImage<uint64_t>& a);
 
-template class std::vector<std::vector<bool>> hole_adjacencies(const SegmentImage<uint8_t>& a);
-template class std::vector<std::vector<bool>> hole_adjacencies(const SegmentImage<uint16_t>& a);
-template class std::vector<std::vector<bool>> hole_adjacencies(const SegmentImage<uint32_t>& a);
-template class std::vector<std::vector<bool>> hole_adjacencies(const SegmentImage<uint64_t>& a);
+template class std::vector<bool> hole_adjacencies(const SegmentImage<uint8_t>& a, uint8_t& n_columns);
+template class std::vector<bool> hole_adjacencies(const SegmentImage<uint16_t>& a, uint16_t& n_columns);
+template class std::vector<bool> hole_adjacencies(const SegmentImage<uint32_t>& a, uint32_t& n_columns);
+template class std::vector<bool> hole_adjacencies(const SegmentImage<uint64_t>& a, uint64_t& n_columns);
 }

@@ -118,7 +118,7 @@ template<class label_t>
 SegmentImage<label_t> dilate(const SegmentImage<label_t>& a,int mx,int my);
 
 template<class label_t>
-std::vector<std::vector<bool>> hole_adjacencies(const SegmentImage<label_t>& a);
+std::vector<bool> hole_adjacencies(const SegmentImage<label_t>& a, label_t& n_columns);
 
 }
 
