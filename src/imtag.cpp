@@ -104,6 +104,14 @@ void SegmentImage<label_t>::to_rgba_label_image(uint8_t* image, const std::vecto
 }
 
 template<class label_t>
+void SegmentImage<label_t>::to_rgba_adjacencies_image(uint8_t* image, const std::array<uint8_t,4>& background_color) const
+{
+	// Find components connected along holes:
+	std::vector<std::vector<bool>> M = hole_adjacencies(*this);
+	impl->to_rgba_adjacencies_image(image, M, background_color);
+}
+
+template<class label_t>
 void SegmentImage<label_t>::remove_components(const std::vector<label_t>& labels)
 {
 	impl->remove_components(labels);

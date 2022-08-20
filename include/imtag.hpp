@@ -87,6 +87,7 @@ public:
 
 	void to_label_image(label_t* image, const bool inc_labels_for_background_0 = true) const;
 	void to_rgba_label_image(uint8_t* image, const std::vector<std::array<uint8_t,4>>& label_colors = {}, const std::array<uint8_t,4>& background_color = {0,0,0,0}) const;
+	void to_rgba_adjacencies_image(uint8_t* image, const std::array<uint8_t,4>& background_color = {0,0,0,0}) const;
 	void to_mask_image(uint8_t* image) const;
 
 	void remove_components(const std::vector<label_t>& labels);
@@ -109,11 +110,15 @@ inline SegmentImage<label_t> bwlabel(
 	return segs;
 }
 
+// Morphological processing
 template<class label_t>
 SegmentImage<label_t> invert(const SegmentImage<label_t>& a);
 
 template<class label_t>
 SegmentImage<label_t> dilate(const SegmentImage<label_t>& a,int mx,int my);
+
+template<class label_t>
+std::vector<std::vector<bool>> hole_adjacencies(const SegmentImage<label_t>& a);
 
 }
 
