@@ -12,58 +12,58 @@ namespace neon
 template<bool mask>
 static inline bool is_all(uint8x8_t reg)
 {
-    if constexpr(mask)
-    {
-        return vminv_u8(reg)==0xFF;
-    }
-    else
-    {
-        return vmaxv_u8(reg)==0x00;
-    }
+	if constexpr(mask)
+	{
+		return vminv_u8(reg)==0xFF;
+	}
+	else
+	{
+		return vmaxv_u8(reg)==0x00;
+	}
 }
 template<bool mask>
 static inline bool is_all(uint8x16_t reg)
 {
-    if constexpr(mask)
-    {
-        return vminvq_u8(reg)==0xFF;
-    }
-    else
-    {
-        return vmaxvq_u8(reg)==0x00;
-    }
+	if constexpr(mask)
+	{
+		return vminvq_u8(reg)==0xFF;
+	}
+	else
+	{
+		return vmaxvq_u8(reg)==0x00;
+	}
 }
 template<bool mask>
 static inline bool is_all(uint8x16x2_t reg)
 {
-    if constexpr(mask)
-    {
-        uint8x16_t r=vminq_u8(reg.val[0],reg.val[1]);
-        return vminvq_u8(r)==0xFF;
-    }
-    else
-    {
-        uint8x16_t r=vmaxq_u8(reg.val[0],reg.val[1]);
-        return vmaxvq_u8(r)==0x00;
-    }
+	if constexpr(mask)
+	{
+		uint8x16_t r=vminq_u8(reg.val[0],reg.val[1]);
+		return vminvq_u8(r)==0xFF;
+	}
+	else
+	{
+		uint8x16_t r=vmaxq_u8(reg.val[0],reg.val[1]);
+		return vmaxvq_u8(r)==0x00;
+	}
 }
 template<bool mask>
 static inline bool is_all(uint8x16x4_t reg)
 {
-    if constexpr(mask)
-    {
-        uint8x16_t r0=vminq_u8(reg.val[0],reg.val[1]);
-        uint8x16_t r1=vminq_u8(reg.val[2],reg.val[3]);
-        uint8x16_t r=vminq_u8(r0,r1);
-        return vminvq_u8(r)==0xFF;
-    }
-    else
-    {
-        uint8x16_t r0=vmaxq_u8(reg.val[0],reg.val[1]);
-        uint8x16_t r1=vmaxq_u8(reg.val[2],reg.val[3]);
-        uint8x16_t r=vmaxq_u8(r0,r1);
-        return vmaxvq_u8(r)==0x00;
-    }
+	if constexpr(mask)
+	{
+		uint8x16_t r0=vminq_u8(reg.val[0],reg.val[1]);
+		uint8x16_t r1=vminq_u8(reg.val[2],reg.val[3]);
+		uint8x16_t r=vminq_u8(r0,r1);
+		return vminvq_u8(r)==0xFF;
+	}
+	else
+	{
+		uint8x16_t r0=vmaxq_u8(reg.val[0],reg.val[1]);
+		uint8x16_t r1=vmaxq_u8(reg.val[2],reg.val[3]);
+		uint8x16_t r=vmaxq_u8(r0,r1);
+		return vmaxvq_u8(r)==0x00;
+	}
 }
 
 }

@@ -96,6 +96,11 @@ int main(int argc,char** argv)
 	//auto segs0 = imtag::bwlabel<label_t>(bwimage.height(), bwimage.width(), bwimage.data());
 	std::cout << "# components: " << segs.components().size() << std::endl;
 
+	auto inverted = invert(segs);
+	stbi::Image invertedImage(inverted.columns(), inverted.rows(), 1);
+	inverted.to_mask_image(invertedImage.data());
+	invertedImage.write("inverted.png");
+
 	stbi::Image maskImage(bwimage.width(), bwimage.height(), 1);
 	benchmark([&maskImage,&segs](){	segs.to_mask_image(maskImage.data()); }, 5000);
 	maskImage.write("mask.png");

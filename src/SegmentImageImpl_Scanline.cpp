@@ -39,9 +39,9 @@ namespace imtag{
 
 template<class label_t>
 void SegmentImageImpl<label_t>::compress_scanlines(
-    const uint8_t* binary_image,
-    size_t R,size_t C,
-    std::vector<std::vector<seg_t>>& output_rows){
+	const uint8_t* binary_image,
+	size_t R,size_t C,
+	std::vector<std::vector<seg_t>>& output_rows){
 
 	output_rows.resize(R);
 

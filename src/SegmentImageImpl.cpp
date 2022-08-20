@@ -33,19 +33,19 @@ void SegmentImageImpl<label_t>::update(const uint8_t* binary_image,ConnectivityS
 template<class label_t>
 void SegmentImageImpl<label_t>::update_connectivity(ConnectivitySelection cs){
 	switch(cs){
-        case ConnectivitySelection::HORIZONTAL:
-            update_connectivity<ConnectivitySelection::HORIZONTAL>();
-            break;
-        case ConnectivitySelection::CROSS:
-            update_connectivity<ConnectivitySelection::CROSS>();
-            break;
-       // case ConnectivitySelection::VERTICAL:
-        //    update_compiletime_dispatch(cs_tag<ConnectivitySelection::VERTICAL>{});
-        //    break;
-        case ConnectivitySelection::EIGHT_WAY:
-            update_connectivity<ConnectivitySelection::EIGHT_WAY>();
-            break;
-    };
+		case ConnectivitySelection::HORIZONTAL:
+			update_connectivity<ConnectivitySelection::HORIZONTAL>();
+			break;
+		case ConnectivitySelection::CROSS:
+			update_connectivity<ConnectivitySelection::CROSS>();
+			break;
+	   // case ConnectivitySelection::VERTICAL:
+		//	update_compiletime_dispatch(cs_tag<ConnectivitySelection::VERTICAL>{});
+		//	break;
+		case ConnectivitySelection::EIGHT_WAY:
+			update_connectivity<ConnectivitySelection::EIGHT_WAY>();
+			break;
+	};
 
 	rows_to_components();
 }

@@ -1,7 +1,7 @@
 add_subdirectory(deps)
 add_subdirectory(cv_comparison)
 add_executable(imtag_test_blob
-    blob.cpp
+	blob.cpp
 )
 target_link_libraries(imtag_test_blob PRIVATE imtag)
 
