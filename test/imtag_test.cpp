@@ -71,7 +71,7 @@ int main(int argc,char** argv)
 	*/
 	bool do_benchmark = true; //false;
 
-	std::string fname="../../test/blobs1.png";
+	std::string fname="../../test/blobs1_.png";
 	if(argc > 1)
 	{
 		fname=argv[1];
@@ -106,8 +106,7 @@ int main(int argc,char** argv)
 	{
 		size_t niters = 500;
 		std::cout << "Hole adjacencies benchmark " << std::endl;
-		auto z = [&segs](){ uint32_t adj_cols; hole_adjacencies(segs,adj_cols); };
-		//auto z = [&inverted, &segs](){ std::vector<bool> adj_matrix(segs.components().size() * inverted.components().size(), false); };//hole_adjacencies(segs); };
+		auto z = [&segs](){ hole_adjacencies(segs); };
 		benchmark(z, niters);
 	}
 
