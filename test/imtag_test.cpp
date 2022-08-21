@@ -92,14 +92,12 @@ int main(int argc,char** argv)
 		benchmark(z, niters);
 	}
 
-	// Debug output:
-	//auto segs0 = imtag::bwlabel<label_t>(bwimage.height(), bwimage.width(), bwimage.data());
 	std::cout << "# components: " << segs.components().size() << std::endl;
 
 	// Invert image:
 	auto inverted = invert(segs);
-	stbi::Image invertedImage(inverted.columns(), inverted.rows(), 1);
-	inverted.to_mask_image(invertedImage.data());
+	stbi::Image invertedImage(inverted.columns(), inverted.rows(), 4);
+	inverted.to_rgba_label_image(invertedImage.data());
 	invertedImage.write("inverted.png");
 
 	if(do_benchmark)

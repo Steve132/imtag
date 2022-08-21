@@ -1,5 +1,6 @@
 #include "SegmentImageImpl.hpp"
 #include <cstring> // memset
+#include <unordered_map>
 
 namespace imtag{
 
@@ -37,7 +38,7 @@ template<class label_t>
 void SegmentImageImpl<label_t>::to_rgba_label_image(uint8_t* image, const std::vector<std::array<uint8_t,4>>& label_colors, const std::array<uint8_t,4>& background_color) const
 {
 	std::vector<uint32_t> label_colors32;
-	label_t last_label = components.back().back().label;
+	label_t last_label = components.back().size() ? components.back().back().label : components.size();
 	label_colors32.reserve(last_label + 1);
 	if(label_colors.size())
 	{
@@ -119,9 +120,11 @@ SegmentImage<label_t> invert(const SegmentImage<label_t>& a){
 			if(cur_seg->column_end == a.columns()) continue;
 			++cur_seg;
 		}
+		label_t prev_label = 0;
 		for(; cur_seg != src_row.end(); ++cur_seg){
-			output_row.emplace_back(r,curcol,cur_seg->column_begin,0);
+			output_row.emplace_back(r,curcol,cur_seg->column_begin, 1);
 			curcol=cur_seg->column_end;
+			prev_label=cur_seg->label;
 		}
 		output_row.emplace_back(r,curcol,a.columns(),0);
 	}
@@ -134,23 +137,6 @@ SegmentImage<label_t> invert(const SegmentImage<label_t>& a){
 		}
 	}
 	out.update_connectivity(ConnectivitySelection::CROSS);
-
-	// Detect whether a source component has a hole: (instead of update_connectivity)
-	/*for(const auto& component : a.components())
-	{
-		// Check the outer boundary of the component for a delta into the background
-		if(component.size() == 1)
-			continue;
-		if(component[0].row != component[1].row)
-
-		for(const auto& seg : component)
-		{
-			if(seg.column_begin < bb.left)
-				bb.left = seg.column_begin;
-			if(seg.column_end > bb.right)
-				bb.right = seg.column_end;
-		}
-	}*/
 
 	return out;
 }
