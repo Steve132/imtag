@@ -8,6 +8,7 @@
 #include<functional>
 #include<limits>
 #include<iostream>
+#include<array>
 
 namespace imtag{
 
