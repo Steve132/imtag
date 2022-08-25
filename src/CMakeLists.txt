@@ -49,4 +49,9 @@ target_compile_options(imtag PRIVATE
 	$<$<CONFIG:Release>:-Ofast -march=native>
 	$<$<CONFIG:RelWithDebInfo>:-Ofast -march=native>
 	$<$<CONFIG:Debug>: -march=native>)
+else()
+if(ANDROID_ABI STREQUAL armeabi-v7a)
+    set_target_properties(${TARGET} PROPERTIES COMPILE_FLAGS -mfpu=neon)
+endif()
+
 endif()
