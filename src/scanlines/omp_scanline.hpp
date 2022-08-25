@@ -31,11 +31,11 @@ struct check_all {
 	}
 };
 
-
+/*
 template<bool mask>
 index_t find_next(const uint8_t* buf,index_t N){
 	return find_next_nolimit<128,mask>::impl(buf,N);
-}
+}*/
 
 }
 
