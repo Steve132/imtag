@@ -44,7 +44,7 @@ target_include_directories(imtag PUBLIC
 )
 target_compile_features(imtag INTERFACE cxx_std_11)
 target_compile_features(imtag PRIVATE cxx_std_17)
-if(NOT ANDROID)
+if(NOT ANDROID AND NOT IOS)
 target_compile_options(imtag PRIVATE
 	$<$<CONFIG:Release>:-Ofast -march=native>
 	$<$<CONFIG:RelWithDebInfo>:-Ofast -march=native>
