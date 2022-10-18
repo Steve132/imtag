@@ -33,10 +33,20 @@ find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
 	target_link_libraries(imtag PRIVATE OpenMP::OpenMP_CXX)
 else()
-    #target_compile_options(imtag PRIVATE 
-    #    $<$<CONFIG:Release>:-Ofast -fopenmp-simd>
-	#    $<$<CONFIG:RelWithDebInfo>:-Ofast -fopenmp-simd>
-    #)
+    set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+    try_compile(OMP_SIMD_FOUND 
+        ${CMAKE_CURRENT_BINARY_DIR} 
+        ${CMAKE_CURRENT_SOURCE_DIR}/try_openmp_simd.cpp
+        COMPILE_DEFINITIONS -fopenmp-simd -D_OPENMP_SIMD 
+        LINK_OPTIONS -fopenmp-simd
+        CXX_STANDARD 11
+    )
+    if(OMP_SIMD_FOUND)
+        target_compile_options(imtag PRIVATE 
+            $<$<CONFIG:Release>:-O3 -fopenmp-simd -D_OPENMP_SIMD>
+	    $<$<CONFIG:RelWithDebInfo>:-O3 -fopenmp-simd -D_OPENMP_SIMD>
+        )
+    endif()
 endif()
 
 target_include_directories(imtag PUBLIC
