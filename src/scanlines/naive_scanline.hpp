@@ -19,6 +19,7 @@ struct check_all {
 			return r==0;
 		}
 		else{
+			uint8_t r=0xFF;
 			for (size_t i = 0 ; i < W ; i++) {
 				r &= a[i];
 			}
