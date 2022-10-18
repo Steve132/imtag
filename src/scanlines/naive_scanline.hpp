@@ -2,7 +2,38 @@
 #define NAIVE_SCANLINE_HPP
 
 #include "scanline_base.hpp"
+#include "scanline_base.hpp"
 
+namespace scanline_base{
+
+// check_all verified correct result.
+template<size_t W,bool mask>
+struct check_all {
+	static bool impl(const uint8_t* a)
+	{
+		if constexpr(!mask){
+			uint8_t r=0x00;
+			for (size_t i = 0 ; i < W ; i++) {
+				r |= a[i];
+			}
+			return r==0;
+		}
+		else{
+			for (size_t i = 0 ; i < W ; i++) {
+				r &= a[i];
+			}
+			return r==0xFF; // r==0
+		}
+	}
+};
+
+/*
+template<bool mask>
+index_t find_next(const uint8_t* buf,index_t N){
+	return find_next_nolimit<128,mask>::impl(buf,N);
+}*/
+
+}
 namespace naive{
 	template<bool mask>
 	index_t find_next(const uint8_t* bimg,index_t N){
